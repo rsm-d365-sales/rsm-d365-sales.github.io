@@ -1,90 +1,489 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RSM D365 — Project Portfolio</title>
+<title>RSM D365 — Innovation Showcase</title>
 <style>
+/* ── Reset ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f6fa;color:#1e293b;min-height:100vh}
-.header{background:linear-gradient(135deg,#003B49 0%,#006B77 100%);color:#fff;padding:48px 24px 56px;text-align:center}
-.header h1{font-size:32px;font-weight:700;margin-bottom:6px;letter-spacing:-0.5px}
-.header h1 span{color:#78BE20}
-.header p{font-size:15px;color:rgba(255,255,255,.75);max-width:540px;margin:0 auto}
-.projects{max-width:900px;margin:-32px auto 40px;padding:0 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
-.card{background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow:hidden;transition:transform .2s,box-shadow .2s;display:flex;flex-direction:column}
-.card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.12)}
-.card-banner{height:8px}
-.card-body{padding:24px 24px 20px;flex:1;display:flex;flex-direction:column}
-.card-body h2{font-size:18px;font-weight:600;margin-bottom:6px;color:#003B49}
-.card-body p{font-size:13px;color:#64748b;line-height:1.5;flex:1}
-.card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
-.tag{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600}
-.tag.d365{background:#e0f2f1;color:#006B77}
-.tag.dashboard{background:#f0fdf4;color:#2E7D32}
-.tag.gantt{background:#e3f2fd;color:#1565c0}
-.tag.poc{background:#fff3e0;color:#e65100}
-.card-links{border-top:1px solid #f1f5f9;padding:14px 24px;display:flex;gap:12px}
-.card-links a{font-size:13px;font-weight:600;color:#006B77;text-decoration:none;padding:6px 16px;border-radius:6px;border:1px solid #006B77;transition:all .15s}
-.card-links a:hover{background:#006B77;color:#fff}
-.card-links a.primary{background:#006B77;color:#fff}
-.card-links a.primary:hover{background:#005a63}
-.footer{text-align:center;padding:24px;font-size:12px;color:#94a3b8}
+:root{
+  --navy:#002D6C;
+  --navy-mid:#0047B3;
+  --navy-light:#2563EB;
+  --navy-glow:rgba(0,71,179,.22);
+  --bg:#eef2f9;           /* light blue-gray page */
+  --surface:#ffffff;       /* white cards */
+  --surface-hover:#f4f7fd;
+  --border:#dde4f0;
+  --text:#1a2744;          /* dark navy body text */
+  --muted:#6b7fa3;         /* mid-tone muted */
+}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── NAV — solid navy, crisp ── */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:var(--navy);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  height:56px;display:flex;align-items:center;padding:0 32px
+}
+.nav-inner{max-width:1120px;margin:0 auto;width:100%;display:flex;align-items:center;gap:16px}
+.rsm-wordmark{display:flex;align-items:center;gap:10px;text-decoration:none}
+.rsm-logo-box{
+  background:rgba(255,255,255,.15);
+  width:40px;height:40px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;font-weight:900;color:#fff;letter-spacing:-1px;
+  border:1px solid rgba(255,255,255,.25)
+}
+.rsm-wordmark-text{line-height:1}
+.rsm-wordmark-text .top{font-size:13px;font-weight:800;color:#fff;letter-spacing:.04em}
+.rsm-wordmark-text .sub{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
+.nav-divider{width:1px;height:28px;background:rgba(255,255,255,.15)}
+.nav-title{font-size:12px;color:rgba(255,255,255,.6);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.nav-badge{
+  margin-left:auto;
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  border-radius:100px;padding:4px 14px;
+  font-size:10px;font-weight:700;color:#fff;letter-spacing:.1em;text-transform:uppercase
+}
+.nav-badge-dot{
+  width:5px;height:5px;background:#fff;border-radius:50%;
+  opacity:.9;animation:blink 2.2s ease-in-out infinite
+}
+@keyframes blink{0%,100%{opacity:.9}50%{opacity:.3}}
+
+/* ── HERO — stays navy/dark for impact ── */
+.hero{
+  position:relative;
+  padding:116px 24px 56px;
+  overflow:hidden
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 120% at 35% -10%,rgba(0,71,179,.6) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 80% at 90% 110%,rgba(37,99,235,.25) 0%,transparent 55%),
+    linear-gradient(160deg,#001a45 0%,#003080 60%,#001535 100%)
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 100% 100% at 50% 0%,black 40%,transparent 85%)
+}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;animation:floatorb 10s ease-in-out infinite}
+.orb-1{width:380px;height:380px;background:rgba(37,99,235,.25);top:-100px;left:10%;animation-delay:0s}
+.orb-2{width:260px;height:260px;background:rgba(0,71,179,.2);bottom:-60px;right:8%;animation-delay:-4s}
+@keyframes floatorb{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-22px) scale(1.05)}}
+
+.hero-inner{
+  position:relative;z-index:2;
+  max-width:1120px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;gap:48px;
+  flex-wrap:wrap
+}
+.hero-left{flex:1;min-width:280px}
+.hero-eyebrow{
+  font-size:11px;font-weight:700;color:rgba(255,255,255,.65);
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;
+  display:flex;align-items:center;gap:8px
+}
+.hero-eyebrow::before{content:'';display:block;width:24px;height:2px;background:rgba(255,255,255,.4);border-radius:2px}
+.hero h1{
+  font-size:clamp(28px,4.5vw,52px);font-weight:800;
+  line-height:1.08;letter-spacing:-1.5px;margin-bottom:14px;color:#fff
+}
+.hero h1 .accent{color:#93c5fd}
+.hero-sub{font-size:15px;color:rgba(255,255,255,.65);line-height:1.65;max-width:480px}
+
+.hero-stats{
+  display:flex;gap:0;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+  border-radius:14px;overflow:hidden;flex-shrink:0;
+  backdrop-filter:blur(12px)
+}
+.stat-item{
+  padding:22px 32px;text-align:center;
+  border-right:1px solid rgba(255,255,255,.15)
+}
+.stat-item:last-child{border-right:none}
+.stat-num{font-size:30px;font-weight:800;color:#fff;display:block;line-height:1}
+.stat-lbl{font-size:10px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.1em;margin-top:5px}
+
+/* ── FILTER BAR — light ── */
+.filter-bar{
+  position:sticky;top:56px;z-index:100;
+  background:rgba(238,242,249,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:12px 24px
+}
+.filter-bar-inner{
+  max-width:1120px;margin:0 auto;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap
+}
+.filter-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:600;white-space:nowrap}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 15px;border-radius:100px;
+  font-size:12px;font-weight:600;
+  border:1px solid var(--border);background:var(--surface);color:var(--muted);
+  cursor:pointer;transition:all .2s ease;user-select:none
+}
+.pill:hover{border-color:rgba(0,71,179,.35);color:var(--navy-mid);background:rgba(0,71,179,.06)}
+.pill.active{
+  background:var(--navy-mid);
+  border-color:transparent;color:#fff;
+  box-shadow:0 2px 12px var(--navy-glow)
+}
+.pill-count{
+  background:rgba(0,0,0,.1);border-radius:100px;
+  padding:1px 7px;font-size:10px;font-weight:700
+}
+.pill.active .pill-count{background:rgba(255,255,255,.25)}
+
+.search-wrap{margin-left:auto;position:relative}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.search-wrap input{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:13px;
+  padding:7px 12px 7px 34px;outline:none;width:210px;transition:all .25s
+}
+.search-wrap input::placeholder{color:var(--muted)}
+.search-wrap input:focus{border-color:var(--navy-mid);box-shadow:0 0 0 3px rgba(0,71,179,.12);width:250px}
+
+/* ── GRID ── */
+.grid-section{max-width:1120px;margin:0 auto;padding:36px 24px 90px}
+.grid-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.grid-meta-txt{font-size:13px;color:var(--muted)}
+.grid-meta-txt strong{color:var(--text)}
+.rsm-line{width:32px;height:2px;background:var(--navy-mid);border-radius:2px;margin-bottom:8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:22px}
+
+/* ── CARD — white, elevated ── */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;display:flex;flex-direction:column;
+  box-shadow:0 2px 8px rgba(26,39,68,.06);
+  opacity:0;transform:translateY(28px);
+  transition:opacity .5s ease,transform .5s ease,box-shadow .25s ease,border-color .25s ease
+}
+.card.in-view{opacity:1;transform:translateY(0)}
+.card.hidden{display:none !important}
+.card:hover{
+  transform:translateY(-6px) scale(1.01) !important;
+  box-shadow:0 16px 48px rgba(26,39,68,.14),0 0 0 1px rgb(0,71,179,.2);
+  border-color:rgba(0,71,179,.22)
+}
+
+/* Card image header stays dark — provides rich contrast */
+.card-img{height:150px;position:relative;overflow:hidden;flex-shrink:0}
+.card-img-bg{position:absolute;inset:0}
+.card-img-grid{
+  position:absolute;inset:0;opacity:.1;
+  background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);
+  background-size:28px 28px
+}
+.card-img-shine{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at 65% 35%,rgba(255,255,255,.12) 0%,transparent 55%)
+}
+.card-img-bar{
+  position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--navy-mid),rgba(0,71,179,.2))
+}
+.card-icon{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:48px;filter:drop-shadow(0 4px 16px rgba(0,0,0,.4))
+}
+
+/* Card body is on light white background */
+.card-body{padding:22px;flex:1;display:flex;flex-direction:column}
+.card-body h2{font-size:19px;font-weight:700;color:var(--navy);margin-bottom:9px;line-height:1.3}
+.card-body p{font-size:13.5px;color:var(--muted);line-height:1.65;flex:1}
+
+.card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px}
+.tag{font-size:11px;padding:3px 11px;border-radius:100px;font-weight:700;letter-spacing:.03em}
+.tag.d365{background:rgba(0,71,179,.1);color:var(--navy-mid);border:1px solid rgba(0,71,179,.2)}
+.tag.dashboard{background:rgba(22,101,52,.08);color:#166534;border:1px solid rgba(22,101,52,.18)}
+.tag.gantt{background:rgba(124,58,237,.08);color:#6d28d9;border:1px solid rgba(124,58,237,.18)}
+.tag.poc{background:rgba(26,39,68,.06);color:var(--muted);border:1px solid var(--border)}
+
+.card-foot{
+  padding:14px 22px;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:10px
+}
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:13px;font-weight:700;text-decoration:none;
+  padding:9px 20px;border-radius:7px;transition:all .2s ease
+}
+.btn-primary{
+  background:var(--navy-mid);color:#fff;
+  box-shadow:0 2px 10px var(--navy-glow)
+}
+.btn-primary:hover{background:var(--navy);box-shadow:0 4px 18px rgba(0,71,179,.35);transform:translateY(-1px)}
+.btn-ghost{
+  background:transparent;color:var(--muted);
+  border:1px solid var(--border)
+}
+.btn-ghost:hover{background:var(--surface-hover);color:var(--navy-mid);border-color:rgba(0,71,179,.25)}
+
+/* ── Empty state ── */
+#empty-state{
+  display:none;grid-column:1/-1;
+  text-align:center;padding:80px 24px;color:var(--muted)
+}
+#empty-state.show{display:block}
+#empty-state .emo{font-size:44px;display:block;margin-bottom:16px}
+#empty-state p{font-size:15px}
+
+/* ── FOOTER ── */
+.footer{
+  border-top:1px solid var(--border);padding:28px 24px;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  font-size:12px;color:var(--muted);background:var(--surface)
+}
+.footer-logo{
+  background:var(--navy);width:22px;height:22px;border-radius:4px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:900;color:#fff;letter-spacing:-0.5px
+}
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>RSM <span>D365</span></h1>
-  <p>Presales demonstrations and proof-of-concept applications built on Microsoft Dynamics 365 Finance &amp; Supply Chain Management.</p>
-</div>
-<div class="projects">
-  <div class="card">
-    <div class="card-banner" style="background:linear-gradient(90deg,#006B77,#78BE20)"></div>
-    <div class="card-body">
-      <h2>Workforce &amp; Routing Assignment</h2>
-      <p>Interactive laboratory operations dashboard and Gantt scheduling tool for Life Sciences Visualizes test order routing, machine utilization, and technician workload from D365 F&amp;SCM production data.</p>
-      <div class="card-tags">
-        <span class="tag d365">D365 F&amp;SCM</span>
-        <span class="tag dashboard">Dashboard</span>
-        <span class="tag gantt">Gantt</span>
-        <span class="tag poc">POC</span>
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="rsm-wordmark" href="#">
+      <div class="rsm-logo-box">RSM</div>
+      <div class="rsm-wordmark-text">
+        <div class="top">RSM US LLP</div>
+        <div class="sub">Microsoft Dynamics 365</div>
       </div>
-    </div>
-    <div class="card-links">
-      <a class="primary" href="workforce-assignment-dashboard.html">Dashboard</a>
-      <a href="workforce-assignment-gantt.html">Gantt Scheduling</a>
-    </div>
+    </a>
+    <div class="nav-divider"></div>
+    <span class="nav-title">Innovation Showcase</span>
+    <div class="nav-badge"><div class="nav-badge-dot"></div>Presales</div>
   </div>
-  <div class="card">
-    <div class="card-banner" style="background:linear-gradient(90deg,#78BE20,#006B77)"></div>
-    <div class="card-body">
-      <h2>Grower Harvesting</h2>
-      <p>End-to-end grower harvesting solution built on D365 F&amp;SCM. Manages crop intake, grower settlements, and harvest scheduling to streamline agricultural supply-chain operations.</p>
-      <div class="card-tags">
-        <span class="tag d365">D365 F&amp;SCM</span>
-        <span class="tag poc">POC</span>
-      </div>
+</nav>
+
+<!-- ═══ HERO (compact) ═══ -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow">D365 Finance &amp; Supply Chain</div>
+      <h1>Solutions Built<br>to <span class="accent">Impress.</span></h1>
+      <p class="hero-sub">Presales demonstrations and proof-of-concept applications that showcase RSM's depth of expertise on Microsoft Dynamics&nbsp;365.</p>
     </div>
-    <div class="card-links">
-      <a class="primary" href="https://www.rsmd365.com/grower-harvesting/">App</a>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-banner" style="background:linear-gradient(90deg,#1565c0,#006B77)"></div>
-    <div class="card-body">
-      <h2>Financial Period Close Dashboard</h2>
-      <p>Interactive calendar-based dashboard for tracking month-end financial close tasks across multiple companies. Visualizes task status, assignments, and due dates with overdue flagging — navigable across all 12 months.</p>
-      <div class="card-tags">
-        <span class="tag d365">D365 F&amp;SCM</span>
-        <span class="tag dashboard">Dashboard</span>
-        <span class="tag poc">POC</span>
-      </div>
-    </div>
-    <div class="card-links">
-      <a class="primary" href="https://www.rsmd365.com/period-close-dashboard/">App</a>
+    <div class="hero-stats">
+      <div class="stat-item"><span class="stat-num" id="hero-count">3</span><div class="stat-lbl">Solutions</div></div>
+      <div class="stat-item"><span class="stat-num">D365</span><div class="stat-lbl">Platform</div></div>
+      <div class="stat-item"><span class="stat-num">F&amp;SCM</span><div class="stat-lbl">Module</div></div>
     </div>
   </div>
 </div>
-<div class="footer">&copy; 2026 RSM US LLP</div>
+
+<!-- ═══ FILTER BAR ═══ -->
+<div class="filter-bar">
+  <div class="filter-bar-inner">
+    <span class="filter-lbl">Filter by</span>
+    <div class="pills" id="pills">
+      <button class="pill active" data-filter="all">All <span class="pill-count" id="cnt-all">3</span></button>
+      <button class="pill" data-filter="d365">D365 F&amp;SCM <span class="pill-count" id="cnt-d365"></span></button>
+      <button class="pill" data-filter="dashboard">Dashboard <span class="pill-count" id="cnt-dashboard"></span></button>
+      <button class="pill" data-filter="gantt">Gantt <span class="pill-count" id="cnt-gantt"></span></button>
+      <button class="pill" data-filter="poc">POC <span class="pill-count" id="cnt-poc"></span></button>
+    </div>
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="search" placeholder="Search solutions…" autocomplete="off">
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CARDS GRID ═══ -->
+<section class="grid-section">
+  <div class="grid-meta">
+    <p class="grid-meta-txt">Showing <strong id="vis-count">3</strong> solutions</p>
+  </div>
+  <div class="cards" id="cards">
+
+    <!-- Card 1 -->
+    <div class="card" data-tags="d365 dashboard gantt poc">
+      <div class="card-img">
+        <div class="card-img-bg" style="background:linear-gradient(135deg,#1a0008 0%,#5a0014 50%,#900020 100%)"></div>
+        <div class="card-img-grid"></div>
+        <div class="card-img-shine"></div>
+        <div class="card-img-bar"></div>
+        <div class="card-icon">🧪</div>
+      </div>
+      <div class="card-body">
+        <h2>Workforce &amp; Routing Assignment</h2>
+        <p>Interactive laboratory operations dashboard and Gantt scheduling tool for Life Sciences. Visualizes test order routing, machine utilization, and technician workload from D365 F&amp;SCM production data.</p>
+        <div class="card-tags">
+          <span class="tag d365">D365 F&amp;SCM</span>
+          <span class="tag dashboard">Dashboard</span>
+          <span class="tag gantt">Gantt</span>
+          <span class="tag poc">POC</span>
+        </div>
+      </div>
+      <div class="card-foot">
+        <a class="btn btn-primary" href="workforce-assignment-dashboard.html">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+        <a class="btn btn-ghost" href="workforce-assignment-gantt.html">Gantt Scheduling</a>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="card" data-tags="d365 poc">
+      <div class="card-img">
+        <div class="card-img-bg" style="background:linear-gradient(135deg,#0d1f0d 0%,#1b4d1b 50%,#2a7a2a 100%)"></div>
+        <div class="card-img-grid"></div>
+        <div class="card-img-shine"></div>
+        <div class="card-img-bar"></div>
+        <div class="card-icon">🌾</div>
+      </div>
+      <div class="card-body">
+        <h2>Grower Harvesting</h2>
+        <p>End-to-end grower harvesting solution built on D365 F&amp;SCM. Manages crop intake, grower settlements, and harvest scheduling to streamline agricultural supply-chain operations.</p>
+        <div class="card-tags">
+          <span class="tag d365">D365 F&amp;SCM</span>
+          <span class="tag poc">POC</span>
+        </div>
+      </div>
+      <div class="card-foot">
+        <a class="btn btn-primary" href="https://www.rsmd365.com/grower-harvesting/" target="_blank" rel="noopener">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open App
+        </a>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="card" data-tags="d365 dashboard poc">
+      <div class="card-img">
+        <div class="card-img-bg" style="background:linear-gradient(135deg,#0a1428 0%,#0f2a5c 50%,#1a3f8c 100%)"></div>
+        <div class="card-img-grid"></div>
+        <div class="card-img-shine"></div>
+        <div class="card-img-bar"></div>
+        <div class="card-icon">📊</div>
+      </div>
+      <div class="card-body">
+        <h2>Financial Period Close Dashboard</h2>
+        <p>Interactive calendar-based dashboard for tracking month-end financial close tasks across multiple companies. Visualizes task status, assignments, and due dates with overdue flagging — navigable across all 12 months.</p>
+        <div class="card-tags">
+          <span class="tag d365">D365 F&amp;SCM</span>
+          <span class="tag dashboard">Dashboard</span>
+          <span class="tag poc">POC</span>
+        </div>
+      </div>
+      <div class="card-foot">
+        <a class="btn btn-primary" href="https://www.rsmd365.com/period-close-dashboard/" target="_blank" rel="noopener">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open App
+        </a>
+      </div>
+    </div>
+
+    <div id="empty-state">
+      <span class="emo">🔍</span>
+      <p>No solutions match — try a different filter or search term.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<div class="footer">
+  <div class="footer-logo">RSM</div>
+  &copy; 2026 RSM US LLP &nbsp;·&nbsp; Presales Innovation
+</div>
+
+<script>
+(function () {
+  const cards = Array.from(document.querySelectorAll('.card[data-tags]'));
+  const tagKeys = ['d365', 'dashboard', 'gantt', 'poc'];
+  const emptyState = document.getElementById('empty-state');
+
+  /* ── Scroll-reveal via IntersectionObserver ── */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('in-view'), i * 90);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  cards.forEach(c => io.observe(c));
+
+  /* ── Count helpers ── */
+  function countFor(tag, search) {
+    return cards.filter(c => {
+      const hasTags = tag === 'all' || c.dataset.tags.split(' ').includes(tag);
+      const hasSearch = !search || matchesSearch(c, search);
+      return hasTags && hasSearch;
+    }).length;
+  }
+  function matchesSearch(c, s) {
+    const h = c.querySelector('h2').textContent.toLowerCase();
+    const p = c.querySelector('p').textContent.toLowerCase();
+    return h.includes(s) || p.includes(s);
+  }
+
+  /* ── Filter & search ── */
+  function run() {
+    const activeFilter = document.querySelector('.pill.active').dataset.filter;
+    const search = document.getElementById('search').value.toLowerCase().trim();
+    let shown = 0;
+
+    cards.forEach(c => {
+      const tags = c.dataset.tags.split(' ');
+      const ok = (activeFilter === 'all' || tags.includes(activeFilter)) &&
+                 (!search || matchesSearch(c, search));
+      c.classList.toggle('hidden', !ok);
+      if (ok) shown++;
+    });
+
+    document.getElementById('vis-count').textContent = shown;
+    document.getElementById('hero-count').textContent = cards.length;
+    emptyState.classList.toggle('show', shown === 0);
+
+    /* update pill counts */
+    tagKeys.forEach(t => {
+      const el = document.getElementById('cnt-' + t);
+      if (el) el.textContent = countFor(t, search);
+    });
+    document.getElementById('cnt-all').textContent = countFor('all', search);
+  }
+
+  /* ── Pill clicks ── */
+  document.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      run();
+    });
+  });
+
+  /* ── Search input ── */
+  document.getElementById('search').addEventListener('input', run);
+
+  /* ── init ── */
+  run();
+})();
+</script>
 </body>
 </html>
