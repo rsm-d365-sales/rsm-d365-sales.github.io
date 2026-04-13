@@ -217,6 +217,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 .tag.dashboard{background:rgba(22,101,52,.08);color:#166534;border:1px solid rgba(22,101,52,.18)}
 .tag.gantt{background:rgba(124,58,237,.08);color:#6d28d9;border:1px solid rgba(124,58,237,.18)}
 .tag.poc{background:rgba(26,39,68,.06);color:var(--muted);border:1px solid var(--border)}
+.tag.portal{background:rgba(217,95,43,.09);color:#b84d22;border:1px solid rgba(217,95,43,.22)}
 
 .card-foot{
   padding:14px 22px;border-top:1px solid var(--border);
@@ -291,7 +292,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
       <p class="hero-sub">Presales demonstrations and proof-of-concept applications that showcase RSM's depth of expertise on Microsoft Dynamics&nbsp;365.</p>
     </div>
     <div class="hero-stats">
-      <div class="stat-item"><span class="stat-num" id="hero-count">3</span><div class="stat-lbl">Solutions</div></div>
+      <div class="stat-item"><span class="stat-num" id="hero-count">4</span><div class="stat-lbl">Solutions</div></div>
       <div class="stat-item"><span class="stat-num">D365</span><div class="stat-lbl">Platform</div></div>
       <div class="stat-item"><span class="stat-num">F&amp;SCM</span><div class="stat-lbl">Module</div></div>
     </div>
@@ -303,11 +304,12 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
   <div class="filter-bar-inner">
     <span class="filter-lbl">Filter by</span>
     <div class="pills" id="pills">
-      <button class="pill active" data-filter="all">All <span class="pill-count" id="cnt-all">3</span></button>
+      <button class="pill active" data-filter="all">All <span class="pill-count" id="cnt-all">4</span></button>
       <button class="pill" data-filter="d365">D365 F&amp;SCM <span class="pill-count" id="cnt-d365"></span></button>
       <button class="pill" data-filter="dashboard">Dashboard <span class="pill-count" id="cnt-dashboard"></span></button>
       <button class="pill" data-filter="gantt">Gantt <span class="pill-count" id="cnt-gantt"></span></button>
       <button class="pill" data-filter="poc">POC <span class="pill-count" id="cnt-poc"></span></button>
+      <button class="pill" data-filter="portal">Portal <span class="pill-count" id="cnt-portal"></span></button>
     </div>
     <div class="search-wrap">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -402,6 +404,33 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
       </div>
     </div>
 
+    <!-- Card 4 -->
+    <div class="card" data-tags="d365 portal poc">
+      <div class="card-img">
+        <div class="card-img-bg" style="background:linear-gradient(135deg,#1e0f00 0%,#5c2a10 50%,#9a4520 100%)"></div>
+        <div class="card-img-grid"></div>
+        <div class="card-img-shine"></div>
+        <div class="card-img-bar"></div>
+        <div class="card-icon">🍦</div>
+      </div>
+      <div class="card-body">
+        <h2>Customer Onboarding Portal</h2>
+        <p>Branded self-service onboarding portal for Joy Baking Group (demo). Captures company info, primary contact, product interests, and supporting documents — designed to feed a Power Automate flow that creates a prospect or customer record in D365 for Sales review.</p>
+        <div class="card-tags">
+          <span class="tag d365">D365 Sales</span>
+          <span class="tag portal">Portal</span>
+          <span class="tag poc">POC</span>
+        </div>
+      </div>
+      <div class="card-foot">
+        <a class="btn btn-primary" href="https://rsm-d365-sales.github.io/Customer-onboarding-1/" target="_blank" rel="noopener">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open Portal
+        </a>
+        <a class="btn btn-ghost" href="https://rsm-d365-sales.github.io/Customer-onboarding-1/customer-registration.html" target="_blank" rel="noopener">Registration Form</a>
+      </div>
+    </div>
+
     <div id="empty-state">
       <span class="emo">🔍</span>
       <p>No solutions match — try a different filter or search term.</p>
@@ -418,7 +447,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 <script>
 (function () {
   const cards = Array.from(document.querySelectorAll('.card[data-tags]'));
-  const tagKeys = ['d365', 'dashboard', 'gantt', 'poc'];
+  const tagKeys = ['d365', 'dashboard', 'gantt', 'poc', 'portal'];
   const emptyState = document.getElementById('empty-state');
 
   /* ── Scroll-reveal via IntersectionObserver ── */
@@ -461,7 +490,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
     });
 
     document.getElementById('vis-count').textContent = shown;
-    document.getElementById('hero-count').textContent = cards.length;
+    document.getElementById('hero-count').textContent = shown === cards.length ? cards.length : shown;
     emptyState.classList.toggle('show', shown === 0);
 
     /* update pill counts */
