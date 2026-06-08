@@ -164,6 +164,15 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 .grid-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
 .grid-meta-txt{font-size:13px;color:var(--muted)}
 .grid-meta-txt strong{color:var(--text)}
+.grid-meta-right{display:flex;align-items:center;gap:14px}
+.reorder-hint{font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.reorder-hint svg{opacity:.7}
+.reset-order{
+  background:none;border:1px solid var(--border);border-radius:7px;
+  padding:6px 13px;font-size:11px;font-weight:600;color:var(--muted);
+  cursor:pointer;transition:all .2s ease
+}
+.reset-order:hover{border-color:rgba(0,71,179,.3);color:var(--navy-mid);background:rgba(0,71,179,.05)}
 .rsm-line{width:32px;height:2px;background:var(--navy-mid);border-radius:2px;margin-bottom:8px}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:22px}
 
@@ -179,6 +188,19 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 }
 .card.in-view{opacity:1;transform:translateY(0)}
 .card.hidden{display:none !important}
+.card.dragging{opacity:.4;box-shadow:0 22px 60px rgba(26,39,68,.28);transform:scale(.97) !important;cursor:grabbing}
+
+/* Drag handle (affordance) */
+.drag-handle{
+  position:absolute;top:10px;left:10px;z-index:4;
+  display:flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:7px;
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);
+  color:#fff;cursor:grab;backdrop-filter:blur(4px);
+  opacity:0;transition:opacity .2s ease
+}
+.card:hover .drag-handle{opacity:1}
+.drag-handle:active{cursor:grabbing}
 .card:hover{
   transform:translateY(-6px) scale(1.01) !important;
   box-shadow:0 16px 48px rgba(26,39,68,.14),0 0 0 1px rgb(0,71,179,.2);
@@ -324,6 +346,13 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 <section class="grid-section">
   <div class="grid-meta">
     <p class="grid-meta-txt">Showing <strong id="vis-count">6</strong> solutions</p>
+    <div class="grid-meta-right">
+      <span class="reorder-hint">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="6" r="1.4"/><circle cx="15" cy="6" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="9" cy="18" r="1.4"/><circle cx="15" cy="18" r="1.4"/></svg>
+        Drag tiles to reorder
+      </span>
+      <button class="reset-order" id="reset-order" type="button">Reset order</button>
+    </div>
   </div>
   <div class="cards" id="cards">
 
@@ -568,7 +597,69 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
   /* ── Search input ── */
   document.getElementById('search').addEventListener('input', run);
 
+  /* ── Drag & drop reordering (persisted to localStorage) ── */
+  const container = document.getElementById('cards');
+  const STORE_KEY = 'rsmTileOrder';
+  let dragEl = null;
+
+  function keyFor(card) {
+    return card.querySelector('h2').textContent.trim();
+  }
+  function saveOrder() {
+    const order = Array.from(container.querySelectorAll('.card')).map(keyFor);
+    localStorage.setItem(STORE_KEY, JSON.stringify(order));
+  }
+  function restoreOrder() {
+    let saved;
+    try { saved = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { saved = null; }
+    if (!Array.isArray(saved)) return;
+    const map = {};
+    container.querySelectorAll('.card').forEach(c => { map[keyFor(c)] = c; });
+    saved.forEach(k => { if (map[k]) container.insertBefore(map[k], emptyState); });
+  }
+
+  cards.forEach(card => {
+    card.setAttribute('draggable', 'true');
+    /* prevent inner links from hijacking the drag */
+    card.querySelectorAll('a').forEach(a => a.setAttribute('draggable', 'false'));
+
+    /* grab-handle affordance, injected so card HTML stays clean */
+    const handle = document.createElement('div');
+    handle.className = 'drag-handle';
+    handle.title = 'Drag to reorder';
+    handle.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
+    const imgHeader = card.querySelector('.card-img');
+    if (imgHeader) imgHeader.appendChild(handle);
+
+    card.addEventListener('dragstart', e => {
+      dragEl = card;
+      e.dataTransfer.effectAllowed = 'move';
+      setTimeout(() => card.classList.add('dragging'), 0);
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      dragEl = null;
+      saveOrder();
+    });
+    card.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (!dragEl || dragEl === card) return;
+      const all = Array.from(container.querySelectorAll('.card'));
+      /* hover-swap: move dragged card to the target's side based on current order */
+      if (all.indexOf(dragEl) < all.indexOf(card)) card.after(dragEl);
+      else card.before(dragEl);
+    });
+  });
+
+  document.getElementById('reset-order').addEventListener('click', () => {
+    localStorage.removeItem(STORE_KEY);
+    cards.forEach(c => container.insertBefore(c, emptyState));
+    run();
+  });
+
   /* ── init ── */
+  restoreOrder();
   run();
 })();
 </script>
