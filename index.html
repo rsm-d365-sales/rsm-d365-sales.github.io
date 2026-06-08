@@ -218,6 +218,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 .tag.gantt{background:rgba(124,58,237,.08);color:#6d28d9;border:1px solid rgba(124,58,237,.18)}
 .tag.poc{background:rgba(26,39,68,.06);color:var(--muted);border:1px solid var(--border)}
 .tag.portal{background:rgba(217,95,43,.09);color:#b84d22;border:1px solid rgba(217,95,43,.22)}
+.tag.workinstr{background:rgba(13,148,136,.1);color:#0f766e;border:1px solid rgba(13,148,136,.22)}
 
 .card-foot{
   padding:14px 22px;border-top:1px solid var(--border);
@@ -292,7 +293,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
       <p class="hero-sub">Presales demonstrations and proof-of-concept applications that showcase RSM's depth of expertise on Microsoft Dynamics&nbsp;365.</p>
     </div>
     <div class="hero-stats">
-      <div class="stat-item"><span class="stat-num" id="hero-count">4</span><div class="stat-lbl">Solutions</div></div>
+      <div class="stat-item"><span class="stat-num" id="hero-count">6</span><div class="stat-lbl">Solutions</div></div>
       <div class="stat-item"><span class="stat-num">D365</span><div class="stat-lbl">Platform</div></div>
       <div class="stat-item"><span class="stat-num">F&amp;SCM</span><div class="stat-lbl">Module</div></div>
     </div>
@@ -304,12 +305,13 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
   <div class="filter-bar-inner">
     <span class="filter-lbl">Filter by</span>
     <div class="pills" id="pills">
-      <button class="pill active" data-filter="all">All <span class="pill-count" id="cnt-all">4</span></button>
+      <button class="pill active" data-filter="all">All <span class="pill-count" id="cnt-all">6</span></button>
       <button class="pill" data-filter="d365">D365 F&amp;SCM <span class="pill-count" id="cnt-d365"></span></button>
       <button class="pill" data-filter="dashboard">Dashboard <span class="pill-count" id="cnt-dashboard"></span></button>
       <button class="pill" data-filter="gantt">Gantt <span class="pill-count" id="cnt-gantt"></span></button>
       <button class="pill" data-filter="poc">POC <span class="pill-count" id="cnt-poc"></span></button>
       <button class="pill" data-filter="portal">Portal <span class="pill-count" id="cnt-portal"></span></button>
+      <button class="pill" data-filter="workinstr">Work Instructions <span class="pill-count" id="cnt-workinstr"></span></button>
     </div>
     <div class="search-wrap">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -321,7 +323,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 <!-- ═══ CARDS GRID ═══ -->
 <section class="grid-section">
   <div class="grid-meta">
-    <p class="grid-meta-txt">Showing <strong id="vis-count">3</strong> solutions</p>
+    <p class="grid-meta-txt">Showing <strong id="vis-count">6</strong> solutions</p>
   </div>
   <div class="cards" id="cards">
 
@@ -458,6 +460,32 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
       </div>
     </div>
 
+    <!-- Card 6 — Work Instructions -->
+    <div class="card" data-tags="d365 workinstr poc">
+      <div class="card-img">
+        <div class="card-img-bg" style="background:linear-gradient(135deg,#0a1f1c 0%,#0f3d38 50%,#0f766e 100%)"></div>
+        <div class="card-img-grid"></div>
+        <div class="card-img-shine"></div>
+        <div class="card-img-bar"></div>
+        <div class="card-icon">📋</div>
+      </div>
+      <div class="card-body">
+        <h2>Work Instructions</h2>
+        <p>Step-by-step work instructions with MES integration. Delivers digital shop-floor guidance to operators and ties execution back to D365 F&amp;SCM production orders for real-time tracking and compliance.</p>
+        <div class="card-tags">
+          <span class="tag d365">D365 F&amp;SCM</span>
+          <span class="tag workinstr">Work Instructions</span>
+          <span class="tag poc">POC</span>
+        </div>
+      </div>
+      <div class="card-foot">
+        <a class="btn btn-primary" href="https://www.rsmd365.com/work-instructions/" target="_blank" rel="noopener">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open App
+        </a>
+      </div>
+    </div>
+
     <div id="empty-state">
       <span class="emo">🔍</span>
       <p>No solutions match — try a different filter or search term.</p>
@@ -474,7 +502,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 <script>
 (function () {
   const cards = Array.from(document.querySelectorAll('.card[data-tags]'));
-  const tagKeys = ['d365', 'dashboard', 'gantt', 'poc', 'portal'];
+  const tagKeys = ['d365', 'dashboard', 'gantt', 'poc', 'portal', 'workinstr'];
   const emptyState = document.getElementById('empty-state');
 
   /* ── Scroll-reveal via IntersectionObserver ── */
