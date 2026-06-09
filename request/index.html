@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>RSM D365 — Submit a Build Request</title>
+<style>
+/* ── Reset ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#002D6C;
+  --navy-mid:#0047B3;
+  --navy-light:#2563EB;
+  --navy-glow:rgba(0,71,179,.22);
+  --bg:#eef2f9;
+  --surface:#ffffff;
+  --surface-hover:#f4f7fd;
+  --border:#dde4f0;
+  --text:#1a2744;
+  --muted:#6b7fa3;
+  --danger:#c0392b;
+  --ok:#166534;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── NAV ── */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:var(--navy);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  height:56px;display:flex;align-items:center;padding:0 32px
+}
+.nav-inner{max-width:1120px;margin:0 auto;width:100%;display:flex;align-items:center;gap:16px}
+.rsm-wordmark{display:flex;align-items:center;gap:10px;text-decoration:none}
+.rsm-logo-box{
+  background:rgba(255,255,255,.15);
+  width:40px;height:40px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;font-weight:900;color:#fff;letter-spacing:-1px;
+  border:1px solid rgba(255,255,255,.25)
+}
+.rsm-wordmark-text{line-height:1}
+.rsm-wordmark-text .top{font-size:13px;font-weight:800;color:#fff;letter-spacing:.04em}
+.rsm-wordmark-text .sub{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
+.nav-divider{width:1px;height:28px;background:rgba(255,255,255,.15)}
+.nav-title{font-size:12px;color:rgba(255,255,255,.6);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.nav-back{
+  margin-left:auto;
+  display:inline-flex;align-items:center;gap:7px;text-decoration:none;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  border-radius:100px;padding:6px 15px;
+  font-size:11px;font-weight:700;color:#fff;letter-spacing:.04em;transition:all .2s ease
+}
+.nav-back:hover{background:rgba(255,255,255,.22)}
+
+/* ── HERO ── */
+.hero{position:relative;padding:104px 24px 44px;overflow:hidden}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 120% at 35% -10%,rgba(0,71,179,.6) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 80% at 90% 110%,rgba(37,99,235,.25) 0%,transparent 55%),
+    linear-gradient(160deg,#001a45 0%,#003080 60%,#001535 100%)
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 100% 100% at 50% 0%,black 40%,transparent 85%)
+}
+.hero-inner{position:relative;z-index:2;max-width:760px;margin:0 auto}
+.hero-eyebrow{
+  font-size:11px;font-weight:700;color:rgba(255,255,255,.65);
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;
+  display:flex;align-items:center;gap:8px
+}
+.hero-eyebrow::before{content:'';display:block;width:24px;height:2px;background:rgba(255,255,255,.4);border-radius:2px}
+.hero h1{font-size:clamp(26px,4vw,40px);font-weight:800;line-height:1.1;letter-spacing:-1px;margin-bottom:12px;color:#fff}
+.hero h1 .accent{color:#93c5fd}
+.hero-sub{font-size:15px;color:rgba(255,255,255,.65);line-height:1.6;max-width:560px}
+
+/* ── FORM SHELL ── */
+.wrap{max-width:760px;margin:0 auto;padding:34px 24px 90px}
+.form-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  box-shadow:0 6px 24px rgba(26,39,68,.07);overflow:hidden
+}
+.form-head{padding:26px 30px 0}
+.form-head h2{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.form-head p{font-size:13.5px;color:var(--muted);line-height:1.6}
+
+/* section dividers */
+.section{padding:24px 30px;border-bottom:1px solid var(--border)}
+.section:last-of-type{border-bottom:none}
+.section-lbl{
+  font-size:11px;font-weight:800;color:var(--navy-mid);text-transform:uppercase;
+  letter-spacing:.1em;margin-bottom:18px;display:flex;align-items:center;gap:9px
+}
+.section-lbl .num{
+  width:20px;height:20px;border-radius:6px;background:rgba(0,71,179,.1);
+  display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:var(--navy-mid)
+}
+
+/* fields */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+.field{margin-bottom:16px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:7px}
+.field label .req{color:var(--danger);margin-left:2px}
+.field .hint{font-size:11px;color:var(--muted);font-weight:500;margin-top:6px;line-height:1.5}
+.field input[type=text],
+.field input[type=email],
+.field input[type=date],
+.field input[type=url],
+.field select,
+.field textarea{
+  width:100%;background:var(--surface);border:1px solid var(--border);border-radius:9px;
+  color:var(--text);font-family:inherit;font-size:14px;padding:11px 13px;outline:none;
+  transition:border-color .2s,box-shadow .2s
+}
+.field textarea{resize:vertical;min-height:104px;line-height:1.55}
+.field select{appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7fa3' stroke-width='2.5'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--navy-mid);box-shadow:0 0 0 3px rgba(0,71,179,.12)
+}
+.field.invalid input,.field.invalid select,.field.invalid textarea{
+  border-color:var(--danger);box-shadow:0 0 0 3px rgba(192,57,43,.1)
+}
+.field .err{display:none;font-size:11px;color:var(--danger);font-weight:600;margin-top:6px}
+.field.invalid .err{display:block}
+.char-count{float:right;font-size:11px;color:var(--muted);font-weight:600}
+
+/* priority chips */
+.chip-row{display:flex;gap:9px;flex-wrap:wrap}
+.chip{
+  flex:1;min-width:96px;text-align:center;cursor:pointer;user-select:none;
+  border:1px solid var(--border);border-radius:9px;padding:11px 8px;
+  font-size:13px;font-weight:700;color:var(--muted);background:var(--surface);transition:all .18s ease
+}
+.chip:hover{border-color:rgba(0,71,179,.35);color:var(--navy-mid)}
+.chip.sel{background:var(--navy-mid);border-color:transparent;color:#fff;box-shadow:0 2px 10px var(--navy-glow)}
+
+/* footer / submit */
+.form-foot{padding:22px 30px;background:var(--surface-hover);display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.privacy{font-size:11.5px;color:var(--muted);line-height:1.55;flex:1;min-width:220px}
+.btn-submit{
+  margin-left:auto;display:inline-flex;align-items:center;gap:9px;
+  background:var(--navy-mid);color:#fff;border:none;border-radius:9px;
+  font-family:inherit;font-size:14px;font-weight:700;padding:13px 28px;cursor:pointer;
+  box-shadow:0 2px 12px var(--navy-glow);transition:all .2s ease
+}
+.btn-submit:hover{background:var(--navy);box-shadow:0 4px 20px rgba(0,71,179,.35);transform:translateY(-1px)}
+.btn-submit:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.spinner{width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.btn-submit.loading .spinner{display:inline-block}
+.btn-submit.loading .btn-txt{opacity:.85}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* options-loading banner */
+.opt-status{font-size:11px;color:var(--muted);padding:0 30px;margin:-6px 0 14px;display:none}
+.opt-status.show{display:block}
+
+/* SUCCESS state */
+.success{display:none;text-align:center;padding:56px 30px}
+.success.show{display:block}
+.success .check{
+  width:72px;height:72px;border-radius:50%;background:rgba(22,101,52,.1);
+  display:inline-flex;align-items:center;justify-content:center;margin-bottom:20px;
+  animation:pop .4s cubic-bezier(.2,1.3,.5,1)
+}
+@keyframes pop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+.success h2{font-size:23px;font-weight:800;color:var(--navy);margin-bottom:10px}
+.success p{font-size:14px;color:var(--muted);line-height:1.65;max-width:440px;margin:0 auto 8px}
+.ref-badge{
+  display:inline-block;margin:16px 0 24px;background:var(--surface-hover);border:1px dashed var(--border);
+  border-radius:10px;padding:10px 20px;font-size:13px;color:var(--text);font-weight:700
+}
+.ref-badge span{color:var(--navy-mid);font-family:'Consolas',monospace}
+.success-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:7px;text-decoration:none;cursor:pointer;
+  background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:9px;
+  font-family:inherit;font-size:13.5px;font-weight:700;padding:11px 22px;transition:all .2s ease
+}
+.btn-ghost:hover{background:var(--surface-hover);color:var(--navy-mid);border-color:rgba(0,71,179,.25)}
+.btn-ghost.primary{background:var(--navy-mid);color:#fff;border-color:transparent;box-shadow:0 2px 10px var(--navy-glow)}
+.btn-ghost.primary:hover{background:var(--navy);color:#fff}
+
+/* error banner */
+.alert{
+  display:none;margin:0 30px 18px;padding:13px 16px;border-radius:10px;
+  background:rgba(192,57,43,.07);border:1px solid rgba(192,57,43,.25);
+  font-size:13px;color:var(--danger);font-weight:600;line-height:1.5
+}
+.alert.show{display:block}
+
+/* FOOTER */
+.footer{
+  border-top:1px solid var(--border);padding:28px 24px;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  font-size:12px;color:var(--muted);background:var(--surface)
+}
+.footer-logo{
+  background:var(--navy);width:22px;height:22px;border-radius:4px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:900;color:#fff;letter-spacing:-0.5px
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="rsm-wordmark" href="/">
+      <div class="rsm-logo-box">RSM</div>
+      <div class="rsm-wordmark-text">
+        <div class="top">RSM US LLP</div>
+        <div class="sub">Microsoft Dynamics 365</div>
+      </div>
+    </a>
+    <div class="nav-divider"></div>
+    <span class="nav-title">Build Request</span>
+    <a class="nav-back" href="/">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back to Showcase
+    </a>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Innovation Intake</div>
+    <h1>Submit a <span class="accent">Build Request</span></h1>
+    <p class="hero-sub">Have an idea for a D365, RSM Accelerator, or Vibe application? Tell us what you need and our presales team will review it. Fields marked with <span style="color:#fca5a5">*</span> are required.</p>
+  </div>
+</div>
+
+<!-- ═══ FORM ═══ -->
+<div class="wrap">
+  <div class="form-card">
+
+    <div class="form-head">
+      <h2>Request details</h2>
+      <p>The more context you give, the faster we can scope and prioritize. You'll get a reference number on submit.</p>
+    </div>
+    <div class="opt-status" id="opt-status">Loading the latest options…</div>
+
+    <div class="alert" id="alert"></div>
+
+    <!-- ===== FORM VIEW ===== -->
+    <form id="req-form" novalidate>
+
+      <!-- 1 · Who you are -->
+      <div class="section">
+        <div class="section-lbl"><span class="num">1</span>Who's submitting</div>
+        <div class="grid2">
+          <div class="field" data-required>
+            <label>Your name<span class="req">*</span></label>
+            <input type="text" name="submitterName" autocomplete="name" placeholder="Jane Smith">
+            <div class="err">Please enter your name.</div>
+          </div>
+          <div class="field" data-required data-email>
+            <label>Work email<span class="req">*</span></label>
+            <input type="email" name="submitterEmail" autocomplete="email" placeholder="jane.smith@rsmus.com">
+            <div class="err">Enter a valid email address.</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Team / practice</label>
+          <select name="team" data-options="team">
+            <option value="">Select…</option>
+          </select>
+          <div class="hint">Don't see your team? Pick the closest — options are managed in SharePoint.</div>
+        </div>
+      </div>
+
+      <!-- 2 · What you need -->
+      <div class="section">
+        <div class="section-lbl"><span class="num">2</span>What you need built</div>
+        <div class="field" data-required>
+          <label>Request title<span class="req">*</span></label>
+          <input type="text" name="title" maxlength="120" placeholder="e.g. Vendor scorecard dashboard for procurement demos">
+          <div class="err">Give your request a short title.</div>
+        </div>
+        <div class="grid2">
+          <div class="field" data-required>
+            <label>Solution area<span class="req">*</span></label>
+            <select name="category" data-options="category">
+              <option value="">Select…</option>
+            </select>
+            <div class="err">Please choose a solution area.</div>
+          </div>
+          <div class="field" data-required>
+            <label>Request type<span class="req">*</span></label>
+            <select name="requestType" data-options="requestType">
+              <option value="">Select…</option>
+            </select>
+            <div class="err">Please choose a request type.</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Module / functional area</label>
+          <select name="module" data-options="module">
+            <option value="">Select…</option>
+          </select>
+        </div>
+        <div class="field" data-required>
+          <label>Description<span class="req">*</span></label>
+          <textarea name="description" maxlength="2000" placeholder="What should it do? Who is it for? What problem does it solve? Include any data sources, screens, or workflows you have in mind."></textarea>
+          <span class="char-count" data-count-for="description">0 / 2000</span>
+          <div class="err">Please describe what you'd like built.</div>
+        </div>
+        <div class="field">
+          <label>Business value / why now</label>
+          <textarea name="businessValue" maxlength="1000" placeholder="What's the opportunity, client, or deal this supports? What happens if we don't build it?"></textarea>
+          <span class="char-count" data-count-for="businessValue">0 / 1000</span>
+        </div>
+      </div>
+
+      <!-- 3 · Priority & timing -->
+      <div class="section">
+        <div class="section-lbl"><span class="num">3</span>Priority &amp; timing</div>
+        <div class="field" data-required>
+          <label>Priority<span class="req">*</span></label>
+          <div class="chip-row" id="priority-chips" data-options="priority"></div>
+          <input type="hidden" name="priority">
+          <div class="err">Please select a priority.</div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Needed by</label>
+            <input type="date" name="neededBy">
+            <div class="hint">Leave blank if there's no hard deadline.</div>
+          </div>
+          <div class="field">
+            <label>Related client / opportunity</label>
+            <input type="text" name="relatedClient" maxlength="160" placeholder="Account or opportunity name (optional)">
+          </div>
+        </div>
+        <div class="field">
+          <label>Supporting links</label>
+          <input type="url" name="links" placeholder="https://… (mockups, docs, similar examples)">
+          <div class="hint">Optional. One link — add more in the description if needed.</div>
+        </div>
+      </div>
+
+      <div class="form-foot">
+        <p class="privacy">Your name, email, and the time of submission are recorded so we can follow up. Submissions are logged to a SharePoint list and posted to the presales Teams channel.</p>
+        <button type="submit" class="btn-submit" id="submit-btn">
+          <span class="spinner"></span>
+          <span class="btn-txt">Submit request</span>
+        </button>
+      </div>
+    </form>
+
+    <!-- ===== SUCCESS VIEW ===== -->
+    <div class="success" id="success">
+      <div class="check">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2>Request submitted 🎉</h2>
+      <p>Thanks — your request is in. The presales team has been notified in Teams and it's logged for triage.</p>
+      <div class="ref-badge">Reference: <span id="ref-id">—</span></div>
+      <p id="success-echo" style="margin-bottom:24px"></p>
+      <div class="success-actions">
+        <a class="btn-ghost primary" href="/">Back to showcase</a>
+        <button class="btn-ghost" id="another-btn" type="button">Submit another request</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<div class="footer">
+  <div class="footer-logo">RSM</div>
+  &copy; 2026 RSM US LLP &nbsp;·&nbsp; Presales Innovation
+</div>
+
+<!-- Runtime config. This file holds the flow URLs and is NOT committed to the repo
+     (see .gitignore). Loaded locally for testing; injected at deploy from GitHub
+     Secrets. 404 here is harmless — the page falls back to demo mode. -->
+<script src="config.js"></script>
+<script>
+/* ════════════════════════════════════════════════════════════════
+   CONFIG  —  the flow URLs come from request/config.js (git-ignored),
+   which sets window.RSM_CONFIG. If that file is absent, the values stay
+   empty and the form runs in demo mode. See request/SETUP.md.
+   ════════════════════════════════════════════════════════════════ */
+const CONFIG = Object.assign(
+  {
+    SUBMIT_URL: "",   // Flow A — HTTP POST trigger that receives the form JSON
+    OPTIONS_URL: ""   // Flow B — HTTP GET trigger that returns dropdown options
+  },
+  window.RSM_CONFIG || {}
+);
+
+/* Baked-in fallbacks — used instantly on load, and if OPTIONS_URL is blank or unreachable.
+   These are also the schema Flow B should return: { category:[], requestType:[], module:[], priority:[], team:[] } */
+const DEFAULT_OPTIONS = {
+  category: [
+    "D365 Finance & Supply Chain",
+    "RSM Accelerators",
+    "Vibe Applications",
+    "All of the above"
+  ],
+  requestType: [
+    "New build",
+    "Enhancement to existing",
+    "POC / Demo",
+    "Bug fix",
+    "Idea / not sure yet"
+  ],
+  module: [
+    "Finance",
+    "Supply Chain Management",
+    "Manufacturing / Production",
+    "Procurement & Sourcing",
+    "Sales & Marketing",
+    "Project Operations",
+    "Warehouse Management",
+    "Cross-module / Other"
+  ],
+  priority: ["Low", "Medium", "High", "Critical"],
+  team: [
+    "Presales",
+    "Consulting / Delivery",
+    "Sales",
+    "Industry / Vertical",
+    "Other"
+  ]
+};
+
+(function () {
+  const form = document.getElementById('req-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const successView = document.getElementById('success');
+  const alertBox = document.getElementById('alert');
+  const optStatus = document.getElementById('opt-status');
+
+  /* ── Populate a <select> from an options array ── */
+  function fillSelect(sel, values) {
+    const current = sel.value;
+    // keep the leading placeholder option, drop the rest
+    [...sel.querySelectorAll('option')].slice(1).forEach(o => o.remove());
+    values.forEach(v => {
+      const o = document.createElement('option');
+      o.value = v; o.textContent = v;
+      sel.appendChild(o);
+    });
+    if (current && values.includes(current)) sel.value = current;
+  }
+
+  /* ── Build priority chips ── */
+  function fillChips(values) {
+    const row = document.getElementById('priority-chips');
+    const hidden = form.elements['priority'];
+    row.innerHTML = '';
+    values.forEach(v => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.textContent = v;
+      chip.addEventListener('click', () => {
+        row.querySelectorAll('.chip').forEach(c => c.classList.remove('sel'));
+        chip.classList.add('sel');
+        hidden.value = v;
+        chip.closest('.field').classList.remove('invalid');
+      });
+      row.appendChild(chip);
+    });
+  }
+
+  /* ── Apply an options object to the whole form ── */
+  function applyOptions(opts) {
+    document.querySelectorAll('select[data-options]').forEach(sel => {
+      const key = sel.dataset.options;
+      if (Array.isArray(opts[key])) fillSelect(sel, opts[key]);
+    });
+    if (Array.isArray(opts.priority)) fillChips(opts.priority);
+  }
+
+  // 1) render defaults immediately
+  applyOptions(DEFAULT_OPTIONS);
+
+  // 2) try to fetch live options from Flow B, override on success
+  if (CONFIG.OPTIONS_URL) {
+    optStatus.classList.add('show');
+    fetch(CONFIG.OPTIONS_URL, { method: 'GET' })
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(data => {
+        // accept either {options:{...}} or {...}
+        applyOptions(data.options || data);
+        optStatus.classList.remove('show');
+      })
+      .catch(() => {
+        optStatus.textContent = 'Using standard options.';
+        setTimeout(() => optStatus.classList.remove('show'), 1500);
+      });
+  }
+
+  /* ── Character counters ── */
+  document.querySelectorAll('[data-count-for]').forEach(span => {
+    const field = form.elements[span.dataset.countFor];
+    const max = field.getAttribute('maxlength');
+    const upd = () => span.textContent = `${field.value.length} / ${max}`;
+    field.addEventListener('input', upd); upd();
+  });
+
+  /* ── Clear invalid state on edit ── */
+  form.querySelectorAll('input,select,textarea').forEach(el => {
+    el.addEventListener('input', () => el.closest('.field')?.classList.remove('invalid'));
+    el.addEventListener('change', () => el.closest('.field')?.classList.remove('invalid'));
+  });
+
+  /* ── Validation ── */
+  function validate() {
+    let firstBad = null;
+    form.querySelectorAll('.field').forEach(f => f.classList.remove('invalid'));
+
+    form.querySelectorAll('[data-required]').forEach(f => {
+      const input = f.querySelector('input,select,textarea');
+      const val = (input.value || '').trim();
+      let bad = !val;
+      if (!bad && f.hasAttribute('data-email')) {
+        bad = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+      }
+      if (bad) { f.classList.add('invalid'); firstBad = firstBad || f; }
+    });
+    if (firstBad) firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return !firstBad;
+  }
+
+  /* ── Reference id (client-side, human-friendly; flow can override) ── */
+  function makeRef() {
+    const d = new Date();
+    const ymd = d.toISOString().slice(2, 10).replace(/-/g, '');
+    const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+    return `REQ-${ymd}-${rand}`;
+  }
+
+  /* ── Submit ── */
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    alertBox.classList.remove('show');
+    if (!validate()) return;
+
+    const ref = makeRef();
+    const fd = new FormData(form);
+    const payload = Object.fromEntries(fd.entries());
+    payload.referenceId = ref;
+    payload.submittedAt = new Date().toISOString();
+    payload.source = 'rsmd365.com/request';
+    payload.userAgent = navigator.userAgent;
+
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
+
+    try {
+      if (!CONFIG.SUBMIT_URL) {
+        // Not wired yet — simulate so the UI is fully demoable.
+        console.warn('CONFIG.SUBMIT_URL is empty. Payload that WOULD be sent:', payload);
+        await new Promise(r => setTimeout(r, 700));
+      } else {
+        const res = await fetch(CONFIG.SUBMIT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        // If the flow returns its own reference id, prefer it
+        try {
+          const body = await res.json();
+          if (body && body.referenceId) payload.referenceId = body.referenceId;
+        } catch (_) { /* flow returned no/!json body — fine */ }
+      }
+
+      // success view
+      document.getElementById('ref-id').textContent = payload.referenceId;
+      document.getElementById('success-echo').textContent =
+        `"${payload.title}" — ${payload.category}, ${payload.priority} priority.`;
+      form.style.display = 'none';
+      successView.classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch (err) {
+      alertBox.textContent = 'Something went wrong submitting your request. Please try again, or email the presales team directly.';
+      alertBox.classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } finally {
+      submitBtn.classList.remove('loading');
+      submitBtn.disabled = false;
+    }
+  });
+
+  /* ── Submit another ── */
+  document.getElementById('another-btn').addEventListener('click', () => {
+    form.reset();
+    document.querySelectorAll('.chip.sel').forEach(c => c.classList.remove('sel'));
+    document.querySelectorAll('[data-count-for]').forEach(span => {
+      const field = form.elements[span.dataset.countFor];
+      span.textContent = `0 / ${field.getAttribute('maxlength')}`;
+    });
+    successView.classList.remove('show');
+    form.style.display = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+</body>
+</html>
