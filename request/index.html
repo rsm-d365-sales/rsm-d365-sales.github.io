@@ -490,17 +490,48 @@ const DEFAULT_OPTIONS = {
     if (Array.isArray(opts.priority)) fillChips(opts.priority);
   }
 
+  /* ── Normalize Flow B's response into { category:[], requestType:[], … } ──
+     Accepts any of:
+       • a grouped object         { category:[...], priority:[...] }
+       • a flat array of rows     [ {Title, OptionSet, SortOrder}, … ]
+       • SharePoint "Get items"   { value:[ {Title, OptionSet:{Value}, …}, … ] }
+     Field names are matched case-insensitively, and a Choice column that arrives
+     as { Value: "…" } is unwrapped automatically. */
+  function normalizeOptions(data) {
+    if (data && data.options) data = data.options;
+    if (data && Array.isArray(data.value)) data = data.value;        // raw SharePoint body
+    if (data && !Array.isArray(data) && typeof data === 'object') return data; // already grouped
+
+    const grouped = {};
+    if (Array.isArray(data)) {
+      const pick = (o, keys) => { for (const k of keys) if (o[k] != null) return o[k]; };
+      const unwrap = v => (v && typeof v === 'object') ? (v.Value ?? v.value) : v;
+      data
+        .slice()
+        .sort((a, b) => (Number(pick(a, ['sortOrder','SortOrder'])) || 0) -
+                        (Number(pick(b, ['sortOrder','SortOrder'])) || 0))
+        .forEach(row => {
+          const set = unwrap(pick(row, ['optionSet','OptionSet','option_set']));
+          const title = unwrap(pick(row, ['title','Title']));
+          const active = pick(row, ['active','Active']);
+          if (active === false || active === 'No') return;
+          if (!set || title == null) return;
+          (grouped[set] = grouped[set] || []).push(title);
+        });
+    }
+    return grouped;
+  }
+
   // 1) render defaults immediately
   applyOptions(DEFAULT_OPTIONS);
 
   // 2) try to fetch live options from Flow B, override on success
   if (CONFIG.OPTIONS_URL) {
     optStatus.classList.add('show');
-    fetch(CONFIG.OPTIONS_URL, { method: 'GET' })
+    fetch(CONFIG.OPTIONS_URL, { method: 'GET', cache: 'no-store' })
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then(data => {
-        // accept either {options:{...}} or {...}
-        applyOptions(data.options || data);
+        applyOptions(normalizeOptions(data));
         optStatus.classList.remove('show');
       })
       .catch(() => {
