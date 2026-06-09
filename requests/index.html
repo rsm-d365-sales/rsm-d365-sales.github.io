@@ -372,6 +372,7 @@ const DEMO_REQUESTS = [
   let activeStatus = 'all';
   let sortKey = 'submittedAt';
   let sortDir = -1;            // -1 desc, 1 asc
+  let diagFound = 0;           // candidate rows seen in the last parse (for diagnostics)
 
   /* ── Helpers ── */
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -403,11 +404,29 @@ const DEMO_REQUESTS = [
       status: STATUSES.includes(status) ? status : 'New'
     };
   }
+  /* Find the first non-empty array anywhere in the payload — handles arrays nested
+     under requests / value / results / items / body / d, and one generic level. */
+  function deepFindArray(o, depth){
+    if (Array.isArray(o)) return o;
+    if (!o || typeof o !== 'object' || depth > 5) return null;
+    for (const k of ['requests','value','results','items','body','d']){
+      if (o[k] != null){ const a = deepFindArray(o[k], depth+1); if (a && a.length) return a; }
+    }
+    for (const k in o){ const a = deepFindArray(o[k], depth+1); if (a && a.length) return a; }
+    return null;
+  }
   function normalizeAll(data){
-    if (data && data.requests) data = data.requests;
-    if (data && Array.isArray(data.value)) data = data.value;
-    if (!Array.isArray(data)) data = [];
-    return data.map(normalizeRow).filter(r => r.id !== '' && r.id != null);
+    if (typeof data === 'string'){ try { data = JSON.parse(data); } catch(e){} }
+    let arr = Array.isArray(data) ? data : (deepFindArray(data, 0) || []);
+    if (!arr.length && data && typeof data === 'object' && !Array.isArray(data) &&
+        (data.Title || data.title || data.RequestTitle || data.requestTitle)) arr = [data];
+    const rows = arr.filter(x => x && typeof x === 'object');
+    diagFound = rows.length;
+    const mapped = rows.map(normalizeRow);
+    const withId = mapped.filter(r => r.id !== '' && r.id != null);
+    if (withId.length) return withId;
+    if (mapped.length){ mapped.forEach((r,i) => r.id = '_noid_' + i); return mapped; }
+    return [];
   }
 
   /* ── Status filter pills ── */
@@ -561,7 +580,21 @@ const DEMO_REQUESTS = [
       } else {
         const res = await fetch(CONFIG.REQUESTS_URL, { method:'GET', cache:'no-store' });
         if (!res.ok) throw new Error('HTTP '+res.status);
-        requests = normalizeAll(await res.json());
+        const raw = await res.text();
+        let data; try { data = JSON.parse(raw); } catch(_) { data = raw; }
+        requests = normalizeAll(data);
+        if (!requests.length) {
+          console.warn('[requests] Flow C responded 200 but 0 rows parsed. Raw response:', raw);
+          loading.style.display = 'none';
+          table.style.display = 'none';
+          document.getElementById('error-msg').innerHTML =
+            'Flow C responded, but <strong>no requests were parsed</strong> from the body' +
+            (diagFound ? ' (' + diagFound + ' row(s) found).' : '.') +
+            ' Open DevTools → Network → this request → <em>Response</em> to see the shape ' +
+            '(also logged to the console). It expects an array of rows.';
+          errorState.classList.remove('hidden');
+          return;
+        }
       }
       loading.style.display = 'none';
       render();
