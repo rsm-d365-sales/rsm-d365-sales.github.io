@@ -589,6 +589,10 @@ const DEFAULT_OPTIONS = {
     const ref = makeRef();
     const fd = new FormData(form);
     const payload = Object.fromEntries(fd.entries());
+    /* Drop blank optional fields. SharePoint Date (NeededBy) and Number columns
+       reject an empty string "", which makes Flow A's "Create item" throw and the
+       HTTP trigger return 502. Omitting the key sends null instead → accepted. */
+    Object.keys(payload).forEach(k => { if (payload[k] === '') delete payload[k]; });
     payload.referenceId = ref;
     payload.submittedAt = new Date().toISOString();
     payload.source = 'rsmd365.com/request';
