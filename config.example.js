@@ -1,0 +1,11 @@
+/* ────────────────────────────────────────────────────────────────
+   TEMPLATE — copy to  config.js  (repo root) and paste in your URLs.
+   config.js is git-ignored; in production the GitHub Pages deploy
+   workflow writes it from repo Secrets. Shared by /request/ and /board/.
+   ──────────────────────────────────────────────────────────────── */
+window.RSM_CONFIG = {
+  SUBMIT_URL: "",         // Flow A — POST, receive a submitted request
+  OPTIONS_URL: "",        // Flow B — GET,  dropdown options for the form
+  REQUESTS_URL: "",       // Flow C — GET,  all requests for the kanban board
+  UPDATE_STATUS_URL: ""   // Flow D — POST, update one request's Status { id, status }
+};

@@ -32,10 +32,12 @@ jobs:
       # Settings → Secrets and variables → Actions → New repository secret.
       - name: Inject runtime config
         run: |
-          cat > request/config.js <<'EOF'
+          cat > config.js <<'EOF'
           window.RSM_CONFIG = {
             SUBMIT_URL: "${{ secrets.SUBMIT_URL }}",
-            OPTIONS_URL: "${{ secrets.OPTIONS_URL }}"
+            OPTIONS_URL: "${{ secrets.OPTIONS_URL }}",
+            REQUESTS_URL: "${{ secrets.REQUESTS_URL }}",
+            UPDATE_STATUS_URL: "${{ secrets.UPDATE_STATUS_URL }}"
           };
           EOF
 

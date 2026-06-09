@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>RSM D365 — Request Board</title>
+<style>
+/* ── Reset ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#002D6C;
+  --navy-mid:#0047B3;
+  --navy-light:#2563EB;
+  --navy-glow:rgba(0,71,179,.22);
+  --bg:#eef2f9;
+  --surface:#ffffff;
+  --surface-hover:#f4f7fd;
+  --border:#dde4f0;
+  --text:#1a2744;
+  --muted:#6b7fa3;
+  --danger:#c0392b;
+  --ok:#166534;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── NAV ── */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:var(--navy);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  height:56px;display:flex;align-items:center;padding:0 32px
+}
+.nav-inner{max-width:1400px;margin:0 auto;width:100%;display:flex;align-items:center;gap:16px}
+.rsm-wordmark{display:flex;align-items:center;gap:10px;text-decoration:none}
+.rsm-logo-box{
+  background:rgba(255,255,255,.15);
+  width:40px;height:40px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;font-weight:900;color:#fff;letter-spacing:-1px;
+  border:1px solid rgba(255,255,255,.25)
+}
+.rsm-wordmark-text{line-height:1}
+.rsm-wordmark-text .top{font-size:13px;font-weight:800;color:#fff;letter-spacing:.04em}
+.rsm-wordmark-text .sub{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
+.nav-divider{width:1px;height:28px;background:rgba(255,255,255,.15)}
+.nav-title{font-size:12px;color:rgba(255,255,255,.6);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.nav-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+.nav-cta{
+  display:inline-flex;align-items:center;gap:7px;text-decoration:none;
+  background:#fff;color:var(--navy);
+  border-radius:100px;padding:7px 16px;
+  font-size:12px;font-weight:800;letter-spacing:.02em;
+  box-shadow:0 2px 10px rgba(0,0,0,.18);transition:all .2s ease
+}
+.nav-cta:hover{background:#eaf1ff;transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.25)}
+.nav-cta svg{stroke:var(--navy-mid)}
+.nav-back{
+  display:inline-flex;align-items:center;gap:7px;text-decoration:none;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  border-radius:100px;padding:6px 15px;
+  font-size:11px;font-weight:700;color:#fff;letter-spacing:.04em;transition:all .2s ease
+}
+.nav-back:hover{background:rgba(255,255,255,.22)}
+@media(max-width:760px){
+  .nav{padding:0 16px}
+  .nav-divider,.nav-title{display:none}
+  .nav-back span{display:none}
+}
+
+/* ── HERO (compact) ── */
+.hero{position:relative;padding:92px 24px 30px;overflow:hidden}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 120% at 35% -10%,rgba(0,71,179,.6) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 80% at 90% 110%,rgba(37,99,235,.25) 0%,transparent 55%),
+    linear-gradient(160deg,#001a45 0%,#003080 60%,#001535 100%)
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 100% 100% at 50% 0%,black 40%,transparent 85%)
+}
+.hero-inner{position:relative;z-index:2;max-width:1400px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.hero-left{min-width:280px}
+.hero-eyebrow{
+  font-size:11px;font-weight:700;color:rgba(255,255,255,.65);
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;
+  display:flex;align-items:center;gap:8px
+}
+.hero-eyebrow::before{content:'';display:block;width:24px;height:2px;background:rgba(255,255,255,.4);border-radius:2px}
+.hero h1{font-size:clamp(24px,3.4vw,36px);font-weight:800;line-height:1.1;letter-spacing:-1px;margin-bottom:10px;color:#fff}
+.hero h1 .accent{color:#93c5fd}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.65);line-height:1.6;max-width:540px}
+
+/* ── CONTROL BAR ── */
+.controls{
+  position:sticky;top:56px;z-index:100;
+  background:rgba(238,242,249,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:12px 24px
+}
+.controls-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.filter-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:600;white-space:nowrap}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 15px;border-radius:100px;
+  font-size:12px;font-weight:600;
+  border:1px solid var(--border);background:var(--surface);color:var(--muted);
+  cursor:pointer;transition:all .2s ease;user-select:none
+}
+.pill:hover{border-color:rgba(0,71,179,.35);color:var(--navy-mid);background:rgba(0,71,179,.06)}
+.pill.active{background:var(--navy-mid);border-color:transparent;color:#fff;box-shadow:0 2px 12px var(--navy-glow)}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.search-wrap input{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:13px;
+  padding:7px 12px 7px 34px;outline:none;width:200px;transition:all .25s
+}
+.search-wrap input::placeholder{color:var(--muted)}
+.search-wrap input:focus{border-color:var(--navy-mid);box-shadow:0 0 0 3px rgba(0,71,179,.12);width:240px}
+.ctrl-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.refresh-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:7px 14px;font-size:12px;font-weight:700;color:var(--navy-mid);
+  cursor:pointer;transition:all .2s ease
+}
+.refresh-btn:hover{border-color:rgba(0,71,179,.3);background:rgba(0,71,179,.05)}
+.refresh-btn svg{transition:transform .5s ease}
+.refresh-btn.spinning svg{transform:rotate(360deg)}
+.mode-tag{
+  font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:4px 10px;border-radius:100px;white-space:nowrap
+}
+.mode-tag.demo{background:rgba(217,95,43,.12);color:#b84d22;border:1px solid rgba(217,95,43,.28)}
+.mode-tag.live{background:rgba(22,101,52,.1);color:var(--ok);border:1px solid rgba(22,101,52,.25)}
+
+/* ── BOARD ── */
+.board-wrap{max-width:1400px;margin:0 auto;padding:22px 24px 60px;overflow-x:auto}
+.board{display:flex;gap:16px;align-items:flex-start;min-height:50vh}
+.col{
+  flex:1 1 0;min-width:264px;
+  background:rgba(214,223,238,.45);
+  border:1px solid var(--border);
+  border-radius:14px;
+  display:flex;flex-direction:column;
+  max-height:calc(100vh - 200px)
+}
+.col-head{
+  padding:14px 16px 12px;
+  display:flex;align-items:center;gap:9px;
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0
+}
+.col-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.col-title{font-size:13px;font-weight:800;color:var(--text);letter-spacing:.01em}
+.col-count{
+  margin-left:auto;background:var(--surface);border:1px solid var(--border);
+  border-radius:100px;min-width:24px;text-align:center;
+  padding:2px 9px;font-size:11px;font-weight:800;color:var(--muted)
+}
+/* status accents */
+.col[data-status="New"] .col-dot{background:#2563EB}
+.col[data-status="Triaged"] .col-dot{background:#7c3aed}
+.col[data-status="In Progress"] .col-dot{background:#d97706}
+.col[data-status="Done"] .col-dot{background:#16a34a}
+.col[data-status="Declined"] .col-dot{background:#94a3b8}
+
+.col-body{
+  padding:12px;flex:1;overflow-y:auto;
+  display:flex;flex-direction:column;gap:11px;
+  transition:background .15s ease
+}
+.col-body.drop-target{background:rgba(0,71,179,.07);outline:2px dashed rgba(0,71,179,.35);outline-offset:-6px;border-radius:10px}
+.col-empty{
+  text-align:center;color:var(--muted);font-size:12px;
+  padding:22px 10px;border:1.5px dashed var(--border);border-radius:10px;line-height:1.5
+}
+
+/* ── CARD ── */
+.req-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:11px;
+  padding:13px 14px;cursor:grab;
+  box-shadow:0 1px 3px rgba(26,39,68,.06);
+  transition:box-shadow .18s ease,transform .12s ease,border-color .18s ease;
+  position:relative
+}
+.req-card:hover{box-shadow:0 6px 20px rgba(26,39,68,.12);border-color:rgba(0,71,179,.22);transform:translateY(-1px)}
+.req-card:active{cursor:grabbing}
+.req-card.dragging{opacity:.45;box-shadow:0 18px 44px rgba(26,39,68,.26)}
+.req-card.saving{pointer-events:none}
+.req-card.saving::after{
+  content:'';position:absolute;top:10px;right:10px;
+  width:13px;height:13px;border:2px solid rgba(0,71,179,.25);border-top-color:var(--navy-mid);
+  border-radius:50%;animation:spin .7s linear infinite
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.rc-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.prio{
+  font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  padding:2px 8px;border-radius:100px;white-space:nowrap
+}
+.prio.Low{background:rgba(107,127,163,.12);color:#5a6b8a;border:1px solid rgba(107,127,163,.25)}
+.prio.Medium{background:rgba(37,99,235,.1);color:var(--navy-mid);border:1px solid rgba(37,99,235,.22)}
+.prio.High{background:rgba(217,95,43,.1);color:#b84d22;border:1px solid rgba(217,95,43,.25)}
+.prio.Critical{background:rgba(192,57,43,.12);color:var(--danger);border:1px solid rgba(192,57,43,.3)}
+.rc-ref{margin-left:auto;font-size:10.5px;font-weight:700;color:var(--muted);font-family:'Consolas',monospace}
+.rc-title{font-size:14px;font-weight:700;color:var(--navy);line-height:1.35;margin-bottom:8px}
+.rc-meta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+.rc-chip{font-size:10.5px;font-weight:600;color:var(--muted);background:var(--surface-hover);border:1px solid var(--border);border-radius:6px;padding:2px 8px}
+.rc-foot{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);padding-top:9px}
+.rc-avatar{
+  width:20px;height:20px;border-radius:50%;flex-shrink:0;
+  background:var(--navy-mid);color:#fff;font-size:9px;font-weight:800;
+  display:flex;align-items:center;justify-content:center
+}
+.rc-due{margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-weight:600}
+.rc-due.overdue{color:var(--danger);font-weight:700}
+.rc-due svg{opacity:.7}
+
+/* mobile status select (shown when drag isn't practical) */
+.rc-move{display:none;margin-top:9px}
+.rc-move select{
+  width:100%;font-family:inherit;font-size:11.5px;font-weight:600;color:var(--navy-mid);
+  background:var(--surface-hover);border:1px solid var(--border);border-radius:7px;padding:6px 8px;cursor:pointer
+}
+@media(max-width:760px){
+  .req-card{cursor:default}
+  .rc-move{display:block}
+  .board{flex-direction:column}
+  .col{width:100%;max-height:none}
+}
+
+/* ── STATE BANNERS ── */
+.state{max-width:1400px;margin:40px auto;padding:0 24px;text-align:center;color:var(--muted)}
+.state .emo{font-size:42px;display:block;margin-bottom:14px}
+.state h3{font-size:18px;color:var(--text);margin-bottom:8px;font-weight:800}
+.state p{font-size:14px;line-height:1.6;max-width:460px;margin:0 auto}
+.state.hidden{display:none}
+.loading-row{display:flex;gap:16px;max-width:1400px;margin:0 auto;padding:22px 24px}
+.skel-col{flex:1;height:200px;border-radius:14px;background:linear-gradient(90deg,#e3e9f4 25%,#eef2f9 50%,#e3e9f4 75%);background-size:200% 100%;animation:shimmer 1.3s infinite}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--navy);color:#fff;font-size:13px;font-weight:600;
+  padding:12px 20px;border-radius:100px;box-shadow:0 8px 30px rgba(0,0,0,.3);
+  z-index:300;opacity:0;transition:all .3s ease;display:flex;align-items:center;gap:9px;max-width:90vw
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.err{background:var(--danger)}
+.toast.ok{background:var(--ok)}
+
+/* ── DETAIL MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:250;background:rgba(10,18,40,.55);
+  backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;
+  padding:24px;opacity:0;pointer-events:none;transition:opacity .2s ease
+}
+.modal-overlay.show{opacity:1;pointer-events:auto}
+.modal{
+  background:var(--surface);border-radius:16px;max-width:560px;width:100%;
+  max-height:88vh;overflow-y:auto;box-shadow:0 24px 70px rgba(0,0,0,.4);
+  transform:translateY(16px) scale(.98);transition:transform .25s ease
+}
+.modal-overlay.show .modal{transform:translateY(0) scale(1)}
+.modal-head{padding:22px 26px 18px;border-bottom:1px solid var(--border);position:relative}
+.modal-head .m-ref{font-size:11px;font-weight:700;color:var(--navy-mid);font-family:'Consolas',monospace;letter-spacing:.04em}
+.modal-head h2{font-size:20px;font-weight:800;color:var(--navy);margin:7px 0 0;line-height:1.3;padding-right:34px}
+.modal-close{
+  position:absolute;top:18px;right:20px;width:30px;height:30px;border-radius:8px;
+  border:1px solid var(--border);background:var(--surface);color:var(--muted);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s
+}
+.modal-close:hover{background:var(--surface-hover);color:var(--danger);border-color:rgba(192,57,43,.3)}
+.modal-body{padding:22px 26px 26px}
+.m-badges{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px}
+.m-status-badge{font-size:11px;font-weight:800;letter-spacing:.04em;padding:4px 12px;border-radius:100px;text-transform:uppercase}
+.m-facts{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;margin-bottom:20px}
+.m-fact .k{font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+.m-fact .v{font-size:13.5px;color:var(--text);font-weight:600;line-height:1.4;word-break:break-word}
+.m-fact .v a{color:var(--navy-mid);font-weight:700}
+.m-section{margin-bottom:18px}
+.m-section .k{font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.m-section .v{font-size:13.5px;color:var(--text);line-height:1.6;white-space:pre-wrap}
+.m-move{border-top:1px solid var(--border);padding-top:18px}
+.m-move label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:8px}
+.m-move select{
+  width:100%;font-family:inherit;font-size:14px;font-weight:600;color:var(--text);
+  background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:11px 13px;cursor:pointer;outline:none;
+  appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7fa3' stroke-width='2.5'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat:no-repeat;background-position:right 13px center;padding-right:38px
+}
+.m-move select:focus{border-color:var(--navy-mid);box-shadow:0 0 0 3px rgba(0,71,179,.12)}
+
+/* ── FOOTER ── */
+.footer{
+  border-top:1px solid var(--border);padding:24px;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  font-size:12px;color:var(--muted);background:var(--surface)
+}
+.footer-logo{
+  background:var(--navy);width:22px;height:22px;border-radius:4px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:900;color:#fff;letter-spacing:-0.5px
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="rsm-wordmark" href="/">
+      <div class="rsm-logo-box">RSM</div>
+      <div class="rsm-wordmark-text">
+        <div class="top">RSM US LLP</div>
+        <div class="sub">Microsoft Dynamics 365</div>
+      </div>
+    </a>
+    <div class="nav-divider"></div>
+    <span class="nav-title">Request Board</span>
+    <div class="nav-actions">
+      <a class="nav-cta" href="/request/">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Request
+      </a>
+      <a class="nav-back" href="/">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <span>Showcase</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Innovation Intake · Triage</div>
+      <h1>Request <span class="accent">Board</span></h1>
+      <p class="hero-sub">Every build request, by status. Drag a card to a new column to update its status — changes write straight back to the SharePoint list.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONTROL BAR ═══ -->
+<div class="controls">
+  <div class="controls-inner">
+    <span class="filter-lbl">Priority</span>
+    <div class="pills" id="prio-pills">
+      <button class="pill active" data-prio="all">All</button>
+      <button class="pill" data-prio="Critical">Critical</button>
+      <button class="pill" data-prio="High">High</button>
+      <button class="pill" data-prio="Medium">Medium</button>
+      <button class="pill" data-prio="Low">Low</button>
+    </div>
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="search" placeholder="Search requests…" autocomplete="off">
+    </div>
+    <div class="ctrl-right">
+      <span class="mode-tag" id="mode-tag"></span>
+      <button class="refresh-btn" id="refresh-btn" type="button">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BOARD ═══ -->
+<div id="loading" class="loading-row">
+  <div class="skel-col"></div><div class="skel-col"></div><div class="skel-col"></div><div class="skel-col"></div><div class="skel-col"></div>
+</div>
+
+<div class="board-wrap">
+  <div class="board" id="board" style="display:none"></div>
+</div>
+
+<div class="state hidden" id="error-state">
+  <span class="emo">⚠️</span>
+  <h3>Couldn't load requests</h3>
+  <p id="error-msg">The board endpoint isn't reachable. Check the flow URL or try refreshing.</p>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<div class="footer">
+  <div class="footer-logo">RSM</div>
+  &copy; 2026 RSM US LLP &nbsp;·&nbsp; Presales Innovation
+</div>
+
+<!-- ═══ DETAIL MODAL ═══ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal" role="dialog" aria-modal="true"></div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div class="toast" id="toast"></div>
+
+<!-- Runtime config (root-level, shared with /request/). Holds the flow URLs and is
+     NOT committed (see .gitignore). Injected at deploy from GitHub Secrets.
+     404 here is harmless — the board falls back to demo mode. -->
+<script src="/config.js"></script>
+<script>
+/* ════════════════════════════════════════════════════════════════
+   CONFIG — flow URLs come from /config.js (git-ignored), which sets
+   window.RSM_CONFIG. If absent, the board runs in DEMO mode with
+   sample data and simulated status updates. See request/SETUP.md.
+
+   Flow C  REQUESTS_URL       GET  → all Build Requests rows
+   Flow D  UPDATE_STATUS_URL  POST → { id, status } updates one row
+   ════════════════════════════════════════════════════════════════ */
+const CONFIG = Object.assign(
+  { REQUESTS_URL: "", UPDATE_STATUS_URL: "" },
+  window.RSM_CONFIG || {}
+);
+
+/* The five Status choices — must match the SharePoint Status column
+   (provision-lists.ps1) and the order is the board's left-to-right flow. */
+const STATUSES = ["New", "Triaged", "In Progress", "Done", "Declined"];
+const PRIORITY_RANK = { Critical: 0, High: 1, Medium: 2, Low: 3, "": 4 };
+
+/* ── Demo data — used when REQUESTS_URL is blank or unreachable ── */
+const DEMO_REQUESTS = [
+  { id: 1,  referenceId:"REQ-260601-A4K2", title:"Vendor scorecard dashboard for procurement demos", submitterName:"Jane Smith", submitterEmail:"jane.smith@rsmus.com", team:"Presales", category:"D365 Finance & Supply Chain", requestType:"New build", module:"Procurement & Sourcing", priority:"High", status:"New", neededBy:"2026-07-01", relatedClient:"Contoso", description:"A dashboard that scores vendors on on-time delivery, price variance, and quality holds — pulled from D365 purchase orders and receipts. For procurement demo storytelling.", businessValue:"Supports the Contoso pursuit; differentiates our sourcing story.", links:"https://example.com/mockup", submittedAt:"2026-06-01T14:12:00Z" },
+  { id: 2,  referenceId:"REQ-260602-9XQ1", title:"Project Operations time-entry mobile mockup", submitterName:"Marco Reyes", submitterEmail:"marco.reyes@rsmus.com", team:"Consulting / Delivery", category:"D365 Finance & Supply Chain", requestType:"POC / Demo", module:"Project Operations", priority:"Medium", status:"Triaged", neededBy:"", relatedClient:"", description:"Mobile-first time entry flow to show how consultants log hours against project tasks.", businessValue:"Common ask in PSA demos.", links:"", submittedAt:"2026-06-02T09:40:00Z" },
+  { id: 3,  referenceId:"REQ-260603-7BB8", title:"Warehouse putaway heatmap", submitterName:"Priya Nair", submitterEmail:"priya.nair@rsmus.com", team:"Industry / Vertical", category:"D365 Finance & Supply Chain", requestType:"New build", module:"Warehouse Management", priority:"Critical", status:"In Progress", neededBy:"2026-06-18", relatedClient:"Northwind Foods", description:"Visualize putaway density and travel paths across warehouse zones to highlight slotting opportunities.", businessValue:"Northwind is evaluating WMS; this is the wow moment.", links:"", submittedAt:"2026-06-03T16:05:00Z" },
+  { id: 4,  referenceId:"REQ-260528-1JD5", title:"Month-end close checklist accelerator", submitterName:"Tom Becker", submitterEmail:"tom.becker@rsmus.com", team:"Presales", category:"RSM Accelerators", requestType:"Enhancement to existing", module:"Finance", priority:"Medium", status:"Done", neededBy:"", relatedClient:"", description:"Add company-by-company drill-down to the existing period close dashboard.", businessValue:"Reusable across finance pursuits.", links:"", submittedAt:"2026-05-28T11:20:00Z" },
+  { id: 5,  referenceId:"REQ-260605-3MN0", title:"Sales territory rebalancing what-if tool", submitterName:"Dana Lo", submitterEmail:"dana.lo@rsmus.com", team:"Sales", category:"Vibe Applications", requestType:"Idea / not sure yet", module:"Sales & Marketing", priority:"Low", status:"New", neededBy:"", relatedClient:"", description:"Let sales leaders drag accounts between territories and see projected quota impact.", businessValue:"Could be a strong leave-behind.", links:"", submittedAt:"2026-06-05T13:55:00Z" },
+  { id: 6,  referenceId:"REQ-260604-6RT4", title:"Duplicate of an old POC — decline", submitterName:"Alex Kim", submitterEmail:"alex.kim@rsmus.com", team:"Other", category:"D365 Finance & Supply Chain", requestType:"POC / Demo", module:"Cross-module / Other", priority:"Low", status:"Declined", neededBy:"", relatedClient:"", description:"Requested a build that already exists in the showcase.", businessValue:"", links:"", submittedAt:"2026-06-04T08:15:00Z" },
+  { id: 7,  referenceId:"REQ-260606-8WP3", title:"Manufacturing OEE live tile", submitterName:"Sara Vogel", submitterEmail:"sara.vogel@rsmus.com", team:"Industry / Vertical", category:"D365 Finance & Supply Chain", requestType:"New build", module:"Manufacturing / Production", priority:"High", status:"Triaged", neededBy:"2026-06-30", relatedClient:"Fabrikam", description:"Overall Equipment Effectiveness tile fed from production order feedback.", businessValue:"Fabrikam manufacturing pursuit.", links:"", submittedAt:"2026-06-06T10:30:00Z" }
+];
+
+(function () {
+  const board = document.getElementById('board');
+  const loading = document.getElementById('loading');
+  const errorState = document.getElementById('error-state');
+  const modeTag = document.getElementById('mode-tag');
+  const toastEl = document.getElementById('toast');
+  const refreshBtn = document.getElementById('refresh-btn');
+  const searchInput = document.getElementById('search');
+  const overlay = document.getElementById('modal-overlay');
+  const modal = document.getElementById('modal');
+
+  const DEMO = !CONFIG.REQUESTS_URL;
+  let requests = [];          // normalized request objects
+  let activePrio = 'all';
+  let dragId = null;
+
+  /* ── Helpers ── */
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function initials(name){
+    const p=(name||'').trim().split(/\s+/);
+    return ((p[0]?.[0]||'')+(p[1]?.[0]||'')).toUpperCase() || '·';
+  }
+  function fmtDate(d){
+    if(!d) return '';
+    const dt=new Date(d); if(isNaN(dt)) return '';
+    return dt.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+  }
+  function isOverdue(d,status){
+    if(!d || status==='Done' || status==='Declined') return false;
+    const dt=new Date(d); if(isNaN(dt)) return false;
+    return dt < new Date(new Date().toDateString());
+  }
+
+  /* ── Normalize a raw row (handles SharePoint shapes & casing) ──
+     Accepts the same variety as the form: grouped object, flat array,
+     or SharePoint "Get items" { value:[…] }. Choice columns that arrive
+     as { Value:"…" } are unwrapped. Field names matched case-insensitively. */
+  function unwrap(v){ return (v && typeof v==='object') ? (v.Value ?? v.value ?? v.DisplayName ?? v) : v; }
+  function pick(o, keys){ for(const k of keys) if(o[k]!=null && o[k]!=='') return o[k]; return ''; }
+
+  function normalizeRow(row){
+    const id = pick(row, ['id','Id','ID','ItemId']);
+    const status = unwrap(pick(row, ['status','Status'])) || 'New';
+    return {
+      id,
+      referenceId:   unwrap(pick(row, ['referenceId','ReferenceId','Title','reference'])),
+      title:         unwrap(pick(row, ['title','RequestTitle','requestTitle','Title_x0020'])) || unwrap(pick(row,['referenceId','ReferenceId'])) || 'Untitled request',
+      submitterName: unwrap(pick(row, ['submitterName','SubmitterName'])),
+      submitterEmail:unwrap(pick(row, ['submitterEmail','SubmitterEmail'])),
+      team:          unwrap(pick(row, ['team','Team'])),
+      category:      unwrap(pick(row, ['category','Category'])),
+      requestType:   unwrap(pick(row, ['requestType','RequestType'])),
+      module:        unwrap(pick(row, ['module','Module'])),
+      description:   unwrap(pick(row, ['description','Description'])),
+      businessValue: unwrap(pick(row, ['businessValue','BusinessValue'])),
+      priority:      unwrap(pick(row, ['priority','Priority'])) || 'Medium',
+      neededBy:      unwrap(pick(row, ['neededBy','NeededBy'])),
+      relatedClient: unwrap(pick(row, ['relatedClient','RelatedClient'])),
+      links:         unwrap(pick(row, ['links','Links'])),
+      submittedAt:   unwrap(pick(row, ['submittedAt','SubmittedAt','Created'])),
+      status: STATUSES.includes(status) ? status : 'New'
+    };
+  }
+  function normalizeAll(data){
+    if (data && data.requests) data = data.requests;
+    if (data && Array.isArray(data.value)) data = data.value;   // raw SharePoint
+    if (!Array.isArray(data)) data = [];
+    return data.map(normalizeRow).filter(r => r.id !== '' && r.id != null);
+  }
+
+  /* ── Toast ── */
+  let toastTimer;
+  function toast(msg, kind){
+    clearTimeout(toastTimer);
+    toastEl.className = 'toast show' + (kind ? ' '+kind : '');
+    toastEl.textContent = msg;
+    toastTimer = setTimeout(()=>toastEl.classList.remove('show'), 2800);
+  }
+
+  /* ── Build the empty column shells once ── */
+  function buildColumns(){
+    board.innerHTML = STATUSES.map(s => `
+      <div class="col" data-status="${esc(s)}">
+        <div class="col-head">
+          <span class="col-dot"></span>
+          <span class="col-title">${esc(s)}</span>
+          <span class="col-count" data-count="${esc(s)}">0</span>
+        </div>
+        <div class="col-body" data-body="${esc(s)}"></div>
+      </div>`).join('');
+
+    board.querySelectorAll('.col-body').forEach(body => {
+      body.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        body.classList.add('drop-target');
+      });
+      body.addEventListener('dragleave', e => {
+        if (!body.contains(e.relatedTarget)) body.classList.remove('drop-target');
+      });
+      body.addEventListener('drop', e => {
+        e.preventDefault();
+        body.classList.remove('drop-target');
+        const newStatus = body.dataset.body;
+        if (dragId != null) changeStatus(dragId, newStatus);
+      });
+    });
+  }
+
+  /* ── Card markup ── */
+  function cardHTML(r){
+    const due = fmtDate(r.neededBy);
+    const overdue = isOverdue(r.neededBy, r.status);
+    const moveOpts = STATUSES.map(s => `<option value="${esc(s)}"${s===r.status?' selected':''}>${esc(s)}</option>`).join('');
+    return `
+      <div class="req-card" draggable="true" data-id="${esc(r.id)}">
+        <div class="rc-top">
+          <span class="prio ${esc(r.priority)}">${esc(r.priority)}</span>
+          <span class="rc-ref">${esc(r.referenceId||'')}</span>
+        </div>
+        <div class="rc-title">${esc(r.title)}</div>
+        <div class="rc-meta">
+          ${r.category?`<span class="rc-chip">${esc(r.category)}</span>`:''}
+          ${r.module?`<span class="rc-chip">${esc(r.module)}</span>`:''}
+        </div>
+        <div class="rc-foot">
+          <span class="rc-avatar" title="${esc(r.submitterName)}">${esc(initials(r.submitterName))}</span>
+          <span>${esc((r.submitterName||'').split(' ')[0]||'—')}</span>
+          ${due?`<span class="rc-due${overdue?' overdue':''}">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            ${esc(due)}</span>`:''}
+        </div>
+        <div class="rc-move">
+          <select data-move="${esc(r.id)}" aria-label="Change status">${moveOpts}</select>
+        </div>
+      </div>`;
+  }
+
+  /* ── Render cards into columns, honoring filter/search ── */
+  function render(){
+    const q = searchInput.value.toLowerCase().trim();
+    const counts = {}; STATUSES.forEach(s => counts[s] = 0);
+
+    const visible = requests.filter(r => {
+      const okPrio = activePrio === 'all' || r.priority === activePrio;
+      const okSearch = !q || [r.title,r.referenceId,r.submitterName,r.category,r.module,r.relatedClient,r.description]
+        .some(v => (v||'').toLowerCase().includes(q));
+      return okPrio && okSearch;
+    });
+
+    // count by status across the full set (so column totals reflect filter)
+    STATUSES.forEach(s => {
+      const body = board.querySelector(`[data-body="${CSS.escape(s)}"]`);
+      const inCol = visible
+        .filter(r => r.status === s)
+        .sort((a,b) => (PRIORITY_RANK[a.priority]??9) - (PRIORITY_RANK[b.priority]??9)
+                    || new Date(a.submittedAt||0) - new Date(b.submittedAt||0));
+      counts[s] = inCol.length;
+      body.innerHTML = inCol.length
+        ? inCol.map(cardHTML).join('')
+        : `<div class="col-empty">Nothing here${activePrio!=='all'||q?' for this filter':''}.<br>Drop a card to set it to “${esc(s)}”.</div>`;
+    });
+
+    STATUSES.forEach(s => board.querySelector(`[data-count="${CSS.escape(s)}"]`).textContent = counts[s]);
+    wireCards();
+  }
+
+  /* ── Attach drag + click + mobile-select handlers to current cards ── */
+  function wireCards(){
+    board.querySelectorAll('.req-card').forEach(card => {
+      card.addEventListener('dragstart', e => {
+        dragId = card.dataset.id;
+        e.dataTransfer.effectAllowed = 'move';
+        setTimeout(() => card.classList.add('dragging'), 0);
+      });
+      card.addEventListener('dragend', () => { card.classList.remove('dragging'); dragId = null; });
+      card.addEventListener('click', e => {
+        if (e.target.closest('.rc-move')) return;   // don't open modal when using the select
+        openModal(card.dataset.id);
+      });
+    });
+    board.querySelectorAll('select[data-move]').forEach(sel => {
+      sel.addEventListener('click', e => e.stopPropagation());
+      sel.addEventListener('change', () => changeStatus(sel.dataset.move, sel.value));
+    });
+  }
+
+  /* ── Optimistic status change → POST to Flow D, revert on failure ── */
+  async function changeStatus(id, newStatus){
+    const r = requests.find(x => String(x.id) === String(id));
+    if (!r || r.status === newStatus) return;
+    const prev = r.status;
+    r.status = newStatus;
+    render();
+    if (modal.dataset.openId === String(id)) openModal(id);   // keep modal in sync
+
+    const cardEl = board.querySelector(`.req-card[data-id="${CSS.escape(String(id))}"]`);
+    cardEl?.classList.add('saving');
+
+    try {
+      if (DEMO || !CONFIG.UPDATE_STATUS_URL) {
+        await new Promise(res => setTimeout(res, 450));        // simulate latency
+      } else {
+        const res = await fetch(CONFIG.UPDATE_STATUS_URL, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ id: r.id, status: newStatus, referenceId: r.referenceId })
+        });
+        if (!res.ok) throw new Error('HTTP '+res.status);
+      }
+      toast(`${r.referenceId||'Request'} → ${newStatus}`, 'ok');
+    } catch (err) {
+      r.status = prev;                                          // revert
+      render();
+      toast('Couldn’t save — change reverted', 'err');
+    } finally {
+      board.querySelector(`.req-card[data-id="${CSS.escape(String(id))}"]`)?.classList.remove('saving');
+    }
+  }
+
+  /* ── Detail modal ── */
+  const STATUS_BADGE_BG = {
+    "New":"background:rgba(37,99,235,.12);color:#2563EB",
+    "Triaged":"background:rgba(124,58,237,.12);color:#7c3aed",
+    "In Progress":"background:rgba(217,119,6,.14);color:#b45309",
+    "Done":"background:rgba(22,163,74,.13);color:#15803d",
+    "Declined":"background:rgba(148,163,184,.2);color:#64748b"
+  };
+  function openModal(id){
+    const r = requests.find(x => String(x.id) === String(id));
+    if (!r) return;
+    modal.dataset.openId = String(id);
+    const link = r.links ? `<a href="${esc(r.links)}" target="_blank" rel="noopener">${esc(r.links)}</a>` : '—';
+    modal.innerHTML = `
+      <div class="modal-head">
+        <button class="modal-close" id="modal-close" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div class="m-ref">${esc(r.referenceId||'—')}</div>
+        <h2>${esc(r.title)}</h2>
+      </div>
+      <div class="modal-body">
+        <div class="m-badges">
+          <span class="m-status-badge" style="${STATUS_BADGE_BG[r.status]||''}">${esc(r.status)}</span>
+          <span class="prio ${esc(r.priority)}">${esc(r.priority)} priority</span>
+        </div>
+        <div class="m-facts">
+          <div class="m-fact"><div class="k">Submitter</div><div class="v">${esc(r.submitterName||'—')}${r.submitterEmail?`<br><a href="mailto:${esc(r.submitterEmail)}">${esc(r.submitterEmail)}</a>`:''}</div></div>
+          <div class="m-fact"><div class="k">Team</div><div class="v">${esc(r.team||'—')}</div></div>
+          <div class="m-fact"><div class="k">Solution area</div><div class="v">${esc(r.category||'—')}</div></div>
+          <div class="m-fact"><div class="k">Request type</div><div class="v">${esc(r.requestType||'—')}</div></div>
+          <div class="m-fact"><div class="k">Module</div><div class="v">${esc(r.module||'—')}</div></div>
+          <div class="m-fact"><div class="k">Needed by</div><div class="v">${r.neededBy?esc(new Date(r.neededBy).toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})):'No deadline'}</div></div>
+          <div class="m-fact"><div class="k">Related client / opp</div><div class="v">${esc(r.relatedClient||'—')}</div></div>
+          <div class="m-fact"><div class="k">Submitted</div><div class="v">${r.submittedAt?esc(new Date(r.submittedAt).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})):'—'}</div></div>
+        </div>
+        <div class="m-section"><div class="k">Description</div><div class="v">${esc(r.description||'—')}</div></div>
+        ${r.businessValue?`<div class="m-section"><div class="k">Business value</div><div class="v">${esc(r.businessValue)}</div></div>`:''}
+        <div class="m-section"><div class="k">Supporting link</div><div class="v">${link}</div></div>
+        <div class="m-move">
+          <label for="m-status">Status</label>
+          <select id="m-status">${STATUSES.map(s=>`<option value="${esc(s)}"${s===r.status?' selected':''}>${esc(s)}</option>`).join('')}</select>
+        </div>
+      </div>`;
+    overlay.classList.add('show');
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('m-status').addEventListener('change', e => changeStatus(id, e.target.value));
+  }
+  function closeModal(){ overlay.classList.remove('show'); modal.dataset.openId = ''; }
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  /* ── Load (Flow C) ── */
+  async function load(){
+    errorState.classList.add('hidden');
+    loading.style.display = 'flex';
+    board.style.display = 'none';
+
+    try {
+      if (DEMO) {
+        await new Promise(r => setTimeout(r, 400));
+        requests = normalizeAll(JSON.parse(JSON.stringify(DEMO_REQUESTS)));
+      } else {
+        const res = await fetch(CONFIG.REQUESTS_URL, { method:'GET', cache:'no-store' });
+        if (!res.ok) throw new Error('HTTP '+res.status);
+        requests = normalizeAll(await res.json());
+      }
+      buildColumns();
+      render();
+      loading.style.display = 'none';
+      board.style.display = '';
+    } catch (err) {
+      loading.style.display = 'none';
+      document.getElementById('error-msg').textContent =
+        'The board endpoint returned an error (' + (err.message||'unreachable') + '). Check REQUESTS_URL in config.js or your Flow C.';
+      errorState.classList.remove('hidden');
+    }
+  }
+
+  /* ── Wire controls ── */
+  document.querySelectorAll('#prio-pills .pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('#prio-pills .pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      activePrio = p.dataset.prio;
+      render();
+    });
+  });
+  searchInput.addEventListener('input', render);
+  refreshBtn.addEventListener('click', () => {
+    refreshBtn.classList.add('spinning');
+    load().finally(() => setTimeout(() => refreshBtn.classList.remove('spinning'), 600));
+  });
+
+  /* ── Init ── */
+  modeTag.textContent = DEMO ? 'Demo data' : 'Live';
+  modeTag.className = 'mode-tag ' + (DEMO ? 'demo' : 'live');
+  modeTag.title = DEMO
+    ? 'No REQUESTS_URL configured — showing sample data. Status changes are simulated.'
+    : 'Connected to the live SharePoint list via Power Automate.';
+  load();
+})();
+</script>
+</body>
+</html>

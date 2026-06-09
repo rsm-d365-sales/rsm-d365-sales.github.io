@@ -8,6 +8,8 @@ request/request-options.csv
 
 # Runtime secret (flow URLs). Injected at deploy from GitHub Secrets.
 # The .example template stays tracked so the shape is documented.
+# Centralized at repo root, shared by /request/ and /board/.
+config.js
 request/config.js
 
 # Belt-and-suspenders: no PowerShell or internal setup docs ever ship

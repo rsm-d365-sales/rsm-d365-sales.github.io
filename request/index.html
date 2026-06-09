@@ -388,10 +388,10 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
   &copy; 2026 RSM US LLP &nbsp;·&nbsp; Presales Innovation
 </div>
 
-<!-- Runtime config. This file holds the flow URLs and is NOT committed to the repo
-     (see .gitignore). Loaded locally for testing; injected at deploy from GitHub
-     Secrets. 404 here is harmless — the page falls back to demo mode. -->
-<script src="config.js"></script>
+<!-- Runtime config (root-level, shared with /board/). Holds the flow URLs and is
+     NOT committed (see .gitignore). Injected at deploy from GitHub Secrets.
+     404 here is harmless — the page falls back to demo mode. -->
+<script src="/config.js"></script>
 <script>
 /* ════════════════════════════════════════════════════════════════
    CONFIG  —  the flow URLs come from request/config.js (git-ignored),

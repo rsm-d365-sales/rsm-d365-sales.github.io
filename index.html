@@ -117,6 +117,17 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 .hero h1 .accent{color:#93c5fd}
 .hero-sub{font-size:15px;color:rgba(255,255,255,.65);line-height:1.65;max-width:480px}
 
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.hero-btn{
+  display:inline-flex;align-items:center;gap:9px;text-decoration:none;
+  font-size:14px;font-weight:700;padding:12px 22px;border-radius:9px;transition:all .2s ease
+}
+.hero-btn-primary{background:#fff;color:var(--navy);box-shadow:0 3px 14px rgba(0,0,0,.22)}
+.hero-btn-primary:hover{background:#eaf1ff;transform:translateY(-2px);box-shadow:0 6px 22px rgba(0,0,0,.3)}
+.hero-btn-primary svg{stroke:var(--navy-mid)}
+.hero-btn-ghost{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.28)}
+.hero-btn-ghost:hover{background:rgba(255,255,255,.2);transform:translateY(-2px)}
+
 .hero-stats{
   display:flex;gap:0;
   background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
@@ -331,6 +342,16 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
       <div class="hero-eyebrow">D365 Finance &amp; Supply Chain</div>
       <h1>Solutions Built<br>to <span class="accent">Impress.</span></h1>
       <p class="hero-sub">Presales demonstrations and proof-of-concept applications that showcase RSM's depth of expertise on Microsoft Dynamics&nbsp;365.</p>
+      <div class="hero-actions">
+        <a class="hero-btn hero-btn-primary" href="request/">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Request something
+        </a>
+        <a class="hero-btn hero-btn-ghost" href="board/">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="6" height="18" rx="1"/><rect x="9" y="3" width="6" height="12" rx="1"/><rect x="15" y="3" width="6" height="15" rx="1"/></svg>
+          Request board
+        </a>
+      </div>
     </div>
     <div class="hero-stats">
       <div class="stat-item"><span class="stat-num" id="hero-count">6</span><div class="stat-lbl">Solutions</div></div>
